@@ -1,6 +1,11 @@
-def encode_word(plaintext, saltPhrase):
+"""
+Scramble takes 2 mandatory paramaters and 1 optional parameter.
+This function can both code and decode a string based on a supplied key.
+If the optional parameter is set to True, then the function will descramble the supplied text based on the key
+"""
+def scramble(plaintext, key, decode=False):
     # get the length of the saltphrase
-    saltLen = len(saltPhrase)
+    saltLen = len(key)
     
     # set up a counter
     i = 0
@@ -12,9 +17,13 @@ def encode_word(plaintext, saltPhrase):
     for x in plaintext:
 
         # we need to loop the salt, so check if the counter is equal to the salt length
-        if i < saltLen:  
-            # convert the plantext char to numeric and the current salttext character and sum these
-            returnVal = ord(x) + ord(saltPhrase[i])        
+        if i < saltLen:      
+            # either encode or decode the text based off the parameter.
+            # as Strings are 0 based, we add 1 to get meet the requirement in the question
+            if decode==True:
+                returnVal = ord(x) - ord(str(i+1))            
+            else:
+                returnVal = ord(x) + ord(str(i+1))        
             # convert back to a char
             returnString += chr(returnVal)
 
@@ -22,34 +31,20 @@ def encode_word(plaintext, saltPhrase):
             i += 1
         else:
             i = 0            
-            returnVal = ord(x)  + ord(saltPhrase[i])
-            returnString += chr(returnVal)
-    return returnString
-
-# decode word is the same as encode, but subracting values, this could be made as one function with a paremeter
-def decode_word(secretText, saltPhrase):
-    saltLen = len(saltPhrase)
-    i = 0
-    returnString = ''   
-
-    for x in secretText:
-        if i < saltLen:  
-            returnVal = ord(x) - ord(saltPhrase[i])        
-            returnString += chr(returnVal)
-            i += 1
-        else:
-            i = 0            
-            returnVal = ord(x)  - ord(saltPhrase[i])
+            if decode==True:
+                returnVal = ord(x)  - ord(str(i+1))
+            else:
+                returnVal = ord(x)  + ord(str(i+1))
             returnString += chr(returnVal)
     return returnString
 
 # these are used a lot so make them vars
-text = 'This is a secret'
-salt = 'ABC'
+text = 'This is a test'
+key = 'ABC'
 
 # encrypt the text
-ciper = encode_word(text, salt)
+ciper = scramble(text, key)
 
 # print stuff to the user
 print("Encrypted text is >>",ciper,"<<")
-print("Plaintext is >>", decode_word(ciper, salt), "<<")
+print("Plaintext is >>", scramble(ciper, key, True), "<<")
