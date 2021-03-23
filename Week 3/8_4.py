@@ -38,7 +38,7 @@ def scramble(plaintext, key, decode=False):
             i += 1
         else:
             i = 0            
-            if decode==True:
+            if decode == True:
                 returnVal = ord(x)  - ord(str(i+1))
             else:
                 returnVal = ord(x)  + ord(str(i+1))
