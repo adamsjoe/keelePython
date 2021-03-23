@@ -12,18 +12,27 @@
 # Write and demonstrate the function upd.
 
 def upd(lis):
-
     for name in lis:
-        # check if the name exists in the dict
+        # check if the name (in the update list) exists in the dictionary
         if name in udict:
+            # if the name exists, get the number of volunteering sessions the person has
             sessions = udict.get(name)
+            # increment the sessions
             sessions += 1
+            # write the new number of sessions back to the dictionary
             udict[name] = sessions            
         else:
+            # the name doesn't exist, so we can set the volunteering sessions to 1
             udict[name] = 1
 
 
 udict={'Andrew':5, 'Brian':3, 'Clive':2, 'David':4}
 ulist = ['Brian', 'David', 'Peter']
 
+# for information, print the dictionary before the update is performed
+print(udict)
+
 upd(ulist)
+
+# print the dictionary after the update
+print(udict)
