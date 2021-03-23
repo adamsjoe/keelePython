@@ -10,3 +10,20 @@
 # ulist = ['Brian', 'David', 'Peter']
 
 # Write and demonstrate the function upd.
+
+def upd(lis):
+
+    for name in lis:
+        # check if the name exists in the dict
+        if name in udict:
+            sessions = udict.get(name)
+            sessions += 1
+            udict[name] = sessions            
+        else:
+            udict[name] = 1
+
+
+udict={'Andrew':5, 'Brian':3, 'Clive':2, 'David':4}
+ulist = ['Brian', 'David', 'Peter']
+
+upd(ulist)
