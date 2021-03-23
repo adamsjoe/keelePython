@@ -1,3 +1,10 @@
+# A slightly more sophisticated form of cipher uses a shared phrase to determine the rotation of individual letters in a message. 
+# Suppose our message was 'EFGH' and our shared phrase 'ABC'. For simplicity, lets keep everything to upper case and that within the 
+# shared phrase A=1, B=2 and C=3. To encrypt we sequence through the message and the phrase simultaneously. 
+# 
+# Thus E is shifted by A (1). F is shifted by B (2). G is shifted by C (3). Finally, H is shifted by A (1) as we cycle around the shared phrase. 
+# 
+# Write a function that will accept a message and a phrase and encrypt it using this technique. Write a second function that will decrypt an encrypted message.
 """
 Scramble takes 2 mandatory paramaters and 1 optional parameter.
 This function can both code and decode a string based on a supplied key.
