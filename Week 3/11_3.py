@@ -74,7 +74,7 @@ for i in db:
     # check if the company exists in the dictionary
     if employeeCompany in companies:
         # add the employee to the company and add a comma
-        companies[employeeCompany] + ", " + employeeName
+         companies[employeeCompany] =  companies[employeeCompany] + ", " + employeeName
     else:
         companies[employeeCompany] = employeeName
     
