@@ -57,31 +57,32 @@ def convertEpochToReadable(e):
     EXCEL_DATE_SYSTEM_PC=1900
     d = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(e-2)
     return d
-    
-def createRecords(loans, books):
 
-    for row in loans:
-        bookNumber = row[0]
-        memberNumber = row[1]
-        loanedDateEpoch = row[2]
-        returnedDateEpoch = row[3]
+# to be removed    
+# def createRecords(loans, books):
 
-        loanedDateEpoch = int(loanedDateEpoch)
-        returnedDateEpoch = int(returnedDateEpoch)
+#     for row in loans:
+#         bookNumber = row[0]
+#         memberNumber = row[1]
+#         loanedDateEpoch = row[2]
+#         returnedDateEpoch = row[3]
 
-        daysOnLoan = 0
-        if returnedDateEpoch == 0:
-            returnedDateEpoch = "out"
-        else:
-            daysOnLoan = returnedDateEpoch - loanedDateEpoch
+#         loanedDateEpoch = int(loanedDateEpoch)
+#         returnedDateEpoch = int(returnedDateEpoch)
+
+#         daysOnLoan = 0
+#         if returnedDateEpoch == 0:
+#             returnedDateEpoch = "out"
+#         else:
+#             daysOnLoan = returnedDateEpoch - loanedDateEpoch
         
-        # loanedString = convertEpochToReadable(int(loanedDateEpoch))
-        # returnedString = convertEpochToReadable(int(returnedDateEpoch))
+#         # loanedString = convertEpochToReadable(int(loanedDateEpoch))
+#         # returnedString = convertEpochToReadable(int(returnedDateEpoch))
 
-        print('{}\t{}\t{}\t{}\t{}'.format(bookNumber, memberNumber, loanedDateEpoch, returnedDateEpoch, daysOnLoan))
+#         print('{}\t{}\t{}\t{}\t{}'.format(bookNumber, memberNumber, loanedDateEpoch, returnedDateEpoch, daysOnLoan))
 
-        # int(bookNumber)
-        # print(bookNumber, "->", books[bookNumber][0])
+#         # int(bookNumber)
+#         # print(bookNumber, "->", books[bookNumber][0])
 
 def containsDate(stringDate, dateToCheck):
     if dateToCheck in stringDate:
