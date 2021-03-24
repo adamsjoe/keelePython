@@ -5,7 +5,11 @@
 # tup = getstats((33,44,55,66,77,23,43,54,65,88,12,34,23))
 
 def getstats(t):
-    return min(t), max(t)
+    average = 0
+    for val in t:
+        average = ave + val
+    average = average / len(t)    
+    return min(t), max(t), average
 
 tup = getstats((33,44,55,66,77,23,43,54,65,88,12,34,23))
 print(tup)
