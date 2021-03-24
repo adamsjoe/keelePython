@@ -25,64 +25,12 @@ def openFile(fileIn, skipHeader = False):
         print('Trying to open {} failed.  No further information was available'.format(fileIn))
     return data
 
-#shit
-def createLibrary(books, loans):
-    theLibrary = {}
-
-    #row = 0
-    
-    theLibrary[0] = "Number"
-    theLibrary[1] = "Title"
-    theLibrary[2] = "Author"
-    theLibrary[3] = "Genre"
-    theLibrary[4] = "SubGenre"
-    theLibrary[4] = "Publisher"
-    theLibrary[4] = "SubGenre"
-
-    for row in books:
-        print(row[0])
-        # theLibrary[row][0] = ("Number")
-        # theLibrary[1][row] = ("Number")
-        # theLibrary[2][row] = ("Number")
-        # theLibrary[3][row] = ("Number")
-        # theLibrary[4][row] = ("Number")
-        #print(row)
-        # row += 1
-    
-    return theLibrary
-
 def convertEpochToReadable(e):
     # https://stackoverflow.com/questions/14271791/converting-date-formats-python-unusual-date-formats-extract-ymd
    
     EXCEL_DATE_SYSTEM_PC=1900
     d = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(e-2)
     return d
-
-# to be removed    
-# def createRecords(loans, books):
-
-#     for row in loans:
-#         bookNumber = row[0]
-#         memberNumber = row[1]
-#         loanedDateEpoch = row[2]
-#         returnedDateEpoch = row[3]
-
-#         loanedDateEpoch = int(loanedDateEpoch)
-#         returnedDateEpoch = int(returnedDateEpoch)
-
-#         daysOnLoan = 0
-#         if returnedDateEpoch == 0:
-#             returnedDateEpoch = "out"
-#         else:
-#             daysOnLoan = returnedDateEpoch - loanedDateEpoch
-        
-#         # loanedString = convertEpochToReadable(int(loanedDateEpoch))
-#         # returnedString = convertEpochToReadable(int(returnedDateEpoch))
-
-#         print('{}\t{}\t{}\t{}\t{}'.format(bookNumber, memberNumber, loanedDateEpoch, returnedDateEpoch, daysOnLoan))
-
-#         # int(bookNumber)
-#         # print(bookNumber, "->", books[bookNumber][0])
 
 def containsDate(stringDate, dateToCheck):
     if dateToCheck in stringDate:
@@ -134,8 +82,3 @@ reportContent(loans, books)
 
 #pprint(books)
 #pprint(loans)
-
-
-# print(type(loans))
-
-#print(books[1][1])
