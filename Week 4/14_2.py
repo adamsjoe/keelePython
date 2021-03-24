@@ -25,15 +25,17 @@ try:
             # reading each word        
             for word in line.split():
     
-                # displaying the words           
-                if word in uniqueWords:
+                # If the word we have is currently in our uniqueWords dictionary, then get how many times it has been seen and
+                # add 1 to it, now set the value          
+                if word in uniqueWords:                    
                     instances = uniqueWords.get(word)
                     instances += 1
-                    uniqueWords[word] =  instances
+                    uniqueWords[word] =  instances                    
                 else:
+                    # this is a new word
                     uniqueWords[word] =  1
 except:
-    print("issue")    
+    print("Unable to read from file specified")    
 
 # sort the dictionary now
 uniqueSorted = sorted(uniqueWords, key = getval) # wtf?!?!?!
@@ -42,5 +44,5 @@ try:
     with open(filepathWrite, 'w') as f:
         json.dump(uniqueWords, f)
 except:
-    print("blah")
+    print("Unable to created output JSON file")
     
