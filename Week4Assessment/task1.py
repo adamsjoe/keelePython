@@ -44,6 +44,7 @@ def convertEpochToReadable(e):
     """      
     EXCEL_DATE_SYSTEM_PC=1900
     d = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(e-2)
+    d = d.strftime("%d-%m-%Y")
     return d
 
 def containsDate(stringDate, dateToCheck):
@@ -60,22 +61,22 @@ def reportContent(loans, books):
         bookNumber = int(bookNumber)
         loanedDateEpoch = row[2]
         loanedDateEpoch = int(loanedDateEpoch)
-        # LoaedDateReadable = convertEpochToReadable(loanedDateEpoch)
+        LoanedDateReadable = convertEpochToReadable(loanedDateEpoch)
+        
 
         # we will store the info on the books in a nested dictionary, first ensure it is not already present
         if bookNumber not in reportDict:
             reportDict[bookNumber] = {}
         
-
         if bookNumber in reportDict:
             # want to check if the date was in 2019, if so add it to a "loaned" count - not done yet
-            
-            # no this is crap
-            loanedTimes =  reportDict[bookNumber].get("timesOut2019")
-            if loanedTimes is None: # check for none type cos you suck
-                loanedTimes = 1
-            else:
-                loanedTimes += 1
+            if containsDate(LoanedDateReadable, '2019'):
+                # no this is crap
+                loanedTimes =  reportDict[bookNumber].get("timesOut2019")
+                if loanedTimes is None: # check for none type cos you suck
+                    loanedTimes = 1
+                else:
+                    loanedTimes += 1
             
             reportDict[bookNumber]["timesOut2019"] = loanedTimes
         else:
