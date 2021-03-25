@@ -2,11 +2,18 @@ import csv
 import datetime
 from pprint import pprint
 
-reportDict = {}
+#reportDict = {}
 
 # csv file names
 bookloansFile = 'bookloans.csv'
 booksFile = 'books.csv'
+reportFile = 'Task_1_report.txt'
+
+# this is wrong
+def getval(x):
+    global reportDict
+    print(x)
+    return reportDict[x]['timesOut2019']
 
 def openFile(fileIn, skipHeader = False):
     """Open a file.
@@ -84,7 +91,7 @@ def reportContent(loans):
     Keyword arguments:
     loans -- the list of data on the loans
     """
-    # reportDict = {}
+    reportDict = {}
     for row in loans:        
         # make things easier to reference
         bookNumber = row[0]
@@ -142,13 +149,28 @@ def reportContent(loans):
         # add to fields
         reportDict[bookNumber]["title"] = bookTitle
         reportDict[bookNumber]["author"] = bookAuthor    
-    print(reportDict[1]['timesOut2019'])
+    # print(reportDict[1]['timesOut2019'])
     return reportDict
 
+def outputReport(contents, fileName):
+    reportFile = open(fileName, 'a')
+    reportFile.write("{:<12} {:<60} {:<40} {:<10}".format('Book Number','Title','Author','Times Loaned 2019'))
+    for k, v in sorted(contents.items(), key=lambda e: e[1]["timesOut2019"]):
+        reportFile.write("{:<12} {:<60} {:<40} {:<10}".format(k, v['title'], v['author'], v['timesOut2019']))
 
 books = openFile(booksFile, False)
 loans = openFile(bookloansFile, False)
+temp = reportContent(loans)
+#outputReport(temp, reportFile)
 
-pprint(reportContent(loans))
 
-# uniqueSorted = sorted(temp, key = getval) # wtf?!?!?!
+print ("{:<12} {:<60} {:<40} {:<10}".format('Book Number','Title','Author','Times Loaned 2019'))
+for k, v in sorted(temp.items(), key=lambda e: e[1]["timesOut2019"]):
+    #print(k, v)
+    #print(v['timesOut2019'])    
+    print ("{:<12} {:<60} {:<40} {:<10}".format(k, v['title'], v['author'], v['timesOut2019']))
+
+#print(temp)
+
+
+
