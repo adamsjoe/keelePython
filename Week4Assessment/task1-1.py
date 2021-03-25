@@ -2,6 +2,8 @@ import csv
 import datetime
 from pprint import pprint
 
+reportDict = {}
+
 # csv file names
 bookloansFile = 'bookloans.csv'
 booksFile = 'books.csv'
@@ -56,8 +58,13 @@ def containsDate(stringDate, dateToCheck):
 def max_value(inputlist):
     return max([sublist[-1] for sublist in inputlist])
 
+def getval(x):
+    global reportDict
+    print(x)
+    return reportDict[x]
+
 def reportContent(loans):
-    reportDict = {}
+    # reportDict = {}
     for row in loans:        
         # make things easier to find        
         bookNumber = row[0]
@@ -103,6 +110,7 @@ def reportContent(loans):
         reportDict[bookNumber]["title"] = bookTitle
         reportDict[bookNumber]["author"] = bookAuthor
     # pprint(reportDict)
+    print(reportDict[1]['timesOut2019'])
     return reportDict
 
 
@@ -112,3 +120,5 @@ loans = openFile(bookloansFile, False)
 
 maxbooks = max_value(books)
 temp = reportContent(loans)
+
+uniqueSorted = sorted(temp, key = getval) # wtf?!?!?!
