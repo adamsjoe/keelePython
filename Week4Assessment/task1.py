@@ -78,13 +78,9 @@ def reportContent(loans, books):
                 loanedTimes += 1
             
             reportDict[bookNumber]["timesOut2019"] = loanedTimes
-            # reportDict[bookNumber]["title"] = books[bookNumber-1][1]
-            # reportDict[bookNumber]["author"] = books[bookNumber-1][2]
         else:
             # this is a new book
             reportDict[bookNumber]["timesOut2019"] = 1
-            # reportDict[bookNumber]["title"] = books[bookNumber-1][1]
-            # reportDict[bookNumber]["author"] = books[bookNumber-1][2]
         reportDict[bookNumber]["title"] = books[bookNumber-1][1]
         reportDict[bookNumber]["author"] = books[bookNumber-1][2]
 
