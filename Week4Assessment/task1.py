@@ -7,6 +7,13 @@ bookloansFile = 'bookloans.csv'
 booksFile = 'books.csv'
 
 def openFile(fileIn, skipHeader = False):
+    """Open a file.
+    
+    Keyword arguments:
+    fileIn -- the file object which will be opened
+    skipHeader -- some files have "Headers" in the first row, if this is true we ignore these (defaults to False)
+    """
+    # setup a variable to hold the data from the file
     data = ''
     # myDictionary = {}
     try:
@@ -14,20 +21,27 @@ def openFile(fileIn, skipHeader = False):
             reader = csv.reader(file)
             if skipHeader == True:
                 next(reader, None)
-            #
+            
             data = [tuple(row) for row in reader]
             # for row in reader:
             #     key = row[0]
             #     myDictionary[key] = row[1:]
-    except FileNotFoundError:
+    except FileNotFoundError: # handle file not found errors with a nice error message
         print('File {} does not exist.'.format(fileIn))
-    except:
+    except: # generic catch all error message
         print('Trying to open {} failed.  No further information was available'.format(fileIn))
+    # return the data variable (the file contents)
     return data
 
 def convertEpochToReadable(e):
-    # https://stackoverflow.com/questions/14271791/converting-date-formats-python-unusual-date-formats-extract-ymd
-   
+    """
+    Excel has a strange idea of epoch, as well a bug from Lotus notes, to convert the date to a readable format
+    I used the following code, which was taken from the  stackoverflow post referenced:
+    
+    https://stackoverflow.com/questions/14271791/converting-date-formats-python-unusual-date-formats-extract-ymd
+    
+    This returns a XXXXXX
+    """      
     EXCEL_DATE_SYSTEM_PC=1900
     d = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(e-2)
     return d
