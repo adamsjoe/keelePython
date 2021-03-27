@@ -1,3 +1,4 @@
+import sys
 import csv
 import datetime
 from pprint import pprint
@@ -7,13 +8,10 @@ from pprint import pprint
 # csv file names
 bookloansFile = 'bookloans.csv'
 booksFile = 'books.csv'
-reportFile = 'Task_1_report.txt'
+reportFileTask1 = 'Task_1_report.csv'
+reportFileTask2 = 'Task_2_report.csv'
+reportFileTask3 = 'Task_3_report.csv'
 
-# this is wrong
-def getval(x):
-    global reportDict
-    print(x)
-    return reportDict[x]['timesOut2019']
 
 def openFile(fileIn, skipHeader = False):
     """Open a file.
@@ -36,8 +34,10 @@ def openFile(fileIn, skipHeader = False):
             data = [tuple(row) for row in reader]
     except FileNotFoundError: # handle file not found errors with a nice error message
         print('File {} does not exist.'.format(fileIn))
+        sys.exit(1)
     except: # generic catch all error message
         print('Trying to open {} failed.  No further information was available'.format(fileIn))
+        sys.exit(1)
     # return the data variable (the file contents)
     return data
 
@@ -84,7 +84,7 @@ def containsDate(stringDate, dateToCheck):
     else:
         return False
 
-def reportContent(loans):
+def buildTask1Details(loans):
     """
     Generate the content for the report.
 
@@ -106,7 +106,6 @@ def reportContent(loans):
         # First ensure the book is not already present:
         if bookNumber not in reportDict:
             reportDict[bookNumber] = {}
-
 
         if bookNumber in reportDict:
             # want to check if the date was in 2019, if so add it to a "loaned" count
@@ -152,25 +151,43 @@ def reportContent(loans):
     # print(reportDict[1]['timesOut2019'])
     return reportDict
 
-def outputReport(contents, fileName):
-    reportFile = open(fileName, 'a')
-    reportFile.write("{:<12} {:<60} {:<40} {:<10}".format('Book Number','Title','Author','Times Loaned 2019'))
-    for k, v in sorted(contents.items(), key=lambda e: e[1]["timesOut2019"]):
-        reportFile.write("{:<12} {:<60} {:<40} {:<10}".format(k, v['title'], v['author'], v['timesOut2019']))
+def sortAndGenerateTask1Content(dataIn):
+    """
+    For task 1 this converts the dictionary to a list and sorts at the same time.
 
+    Keyword arguments:
+    dataIn --  the dictionary which was built up in the buildTask1Details function.
+    sorts on the field timesOutIn2019 and then converts this to a list for use with the CSV writer import.
+    """
+    reportOut = []
+    print ("{:<12} {:<60} {:<40} {:<10}".format('Book Number','Title','Author','Times Loaned 2019'))
+    for k, v in sorted(dataIn.items(), key=lambda e: e[1]["timesOut2019"]):
+        item = [k, v['title'], v['author'], v['timesOut2019']]
+        reportOut.append(item)
+        print ("{:<12} {:<60} {:<40} {:<10}".format(k, v['title'], v['author'], v['timesOut2019']))
+    return reportOut
+
+def createReport(fileName, headers, content):
+    """
+    Creates a report file (currently a CSV)
+
+    Keyword
+    """
+    try:
+        with open(fileName, 'w', newline="") as outFile:
+            csvwriter = csv.writer(outFile)
+            csvwriter.writerow(headers)    
+            csvwriter.writerows(content)
+    except:
+        print('Trying to create {} failed.  No further information was available'.format(fileName))
+        sys.exit(1) 
+
+# Task 1 specific code
+reportHeaders = ['Book Number','Title','Author','Times Loaned 2019']
 books = openFile(booksFile, False)
 loans = openFile(bookloansFile, False)
-temp = reportContent(loans)
-#outputReport(temp, reportFile)
-
-
-print ("{:<12} {:<60} {:<40} {:<10}".format('Book Number','Title','Author','Times Loaned 2019'))
-for k, v in sorted(temp.items(), key=lambda e: e[1]["timesOut2019"]):
-    #print(k, v)
-    #print(v['timesOut2019'])    
-    print ("{:<12} {:<60} {:<40} {:<10}".format(k, v['title'], v['author'], v['timesOut2019']))
-
-#print(temp)
-
+temp = buildTask1Details(loans)
+contents = sortAndGenerateTask1Content(temp)
+createReport(reportFileTask1, reportHeaders, contents)
 
 
