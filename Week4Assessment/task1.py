@@ -3,8 +3,6 @@ import csv
 import datetime
 from pprint import pprint
 
-#reportDict = {}
-
 # csv file names
 BOOKLOANSFILE = 'bookloans.csv'
 BOOKSFILE = 'books.csv'
@@ -247,7 +245,10 @@ def createReport(fileName, headers, content):
     """
     Creates a report file (currently a CSV)
 
-    Keyword
+    Keyword arguments:
+    fileName -- the name of the file we will be creating.
+    headers -- the header row (columns) we need
+    content -- a list containing the rows which will be included in the report
     """
     try:
         with open(fileName, 'w', newline="") as outFile:
@@ -271,7 +272,7 @@ contents = sortAndGenerateTask1Content(temp, 1)
 createReport(REPORTFILETASK_1, reportHeaders, contents)
 
 # Task 2 specific code
-
+# DOCUMENT ME MORE
 reportHeaders = ['Genre','Count']
 reportHeaders2 = ['Sub-Genre','Count']
 temp = buildTask2Details(loans)
@@ -282,4 +283,3 @@ genreReport = sortAndGenerateTask1Content(a, 2.1)
 subGenreReport = sortAndGenerateTask1Content(b, 2.2)
 createReport(REPORTFILETASK_2, reportHeaders, genreReport)
 createReport(REPORTFILETASK_2, reportHeaders2, subGenreReport)
-
