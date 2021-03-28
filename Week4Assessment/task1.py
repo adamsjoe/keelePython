@@ -149,7 +149,7 @@ def buildTask1Details(loans):
         else:
             # if the bookTitle is empty, then we also need to remove the booknumber from the final report
             reportDict.pop(bookNumber)
-    pprint(reportDict)
+    
     return reportDict
 
 def buildTask2Details(loans):
