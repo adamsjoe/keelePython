@@ -11,19 +11,20 @@ REPORTFILETASK_2 = 'Task_2_report.csv'
 REPORTFILETASK_3 = 'Task_3_report.csv'
 
 def openFile(fileIn, skipHeader = False):
-    """Open a file.
+    """
+    Opens a CSV file and returns the data.
     
-    Keyword arguments:
-    fileIn -- the file object which will be opened
-    skipHeader -- some files have "Headers" in the first row, if this is true we ignore these (defaults to False)
+        Keyword arguments:
+            fileIn -- the file object which will be opened
+            skipHeader -- some files have "Headers" in the first row, if this is true we ignore these (defaults to False)
 
-    Returns:
-    data -- the object read from the file.
+        Returns:
+            data -- the object read from the file.
     """
     # setup a variable to hold the data from the file
     data = ''
     try:
-        with open(fileIn, encoding='utf-8-sig',mode='r') as file: # utf-8 with BOM results in \ufeff1 appearing
+        with open(fileIn, encoding='utf-8-sig',mode='r') as file: # utf-8 with BOM results in "\ufeff1" appearing
             reader = csv.reader(file)
             if skipHeader == True:
                 next(reader, None)

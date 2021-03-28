@@ -150,13 +150,13 @@ books = openFile(booksFile)
 loans = openFile(bookloansFile)
 temp = buildTask1Details(loans)
 
-(a, b) = temp
-#pprint(a)
-#pprint(b)
+# temp is a tubpe of two lists, we can split them int
+(genreList, subGenreList) = temp
+
 reportHeaders = ['Genre','Count']
 reportHeaders2 = ['Sub-Genre','Count']
-blah = sortAndGenerateTask1Content(a, 2.1)
-blah2 = sortAndGenerateTask1Content(b, 2.2)
+blah = sortAndGenerateTask1Content(genreList, 2.1)
+blah2 = sortAndGenerateTask1Content(subGenreList, 2.2)
 createReport(reportFileTask2, reportHeaders, blah)
 createReport(reportFileTask2, reportHeaders2, blah2)
 

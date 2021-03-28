@@ -6,22 +6,32 @@ from pprint import pprint
 #reportDict = {}
 
 # csv file names
-bookloansFile = 'bookloans.csv'
-booksFile = 'books.csv'
-reportFileTask1 = 'Task_1_report.csv'
-reportFileTask2 = 'Task_2_report.csv'
-reportFileTask3 = 'Task_3_report.csv'
-
+BOOKLOANSFILE = 'bookloans.csv'
+BOOKSFILE = 'books.csv'
+REPORTFILETASK_1 = 'Task_1_report.csv'
 
 def openFile(fileIn, skipHeader = False):
-    """Open a file.
+    """Open a file and returns the data.
     
-    Keyword arguments:
-    fileIn -- the file object which will be opened
-    skipHeader -- some files have "Headers" in the first row, if this is true we ignore these (defaults to False)
+        Wraps a basic file open in a function to allow this to be reused.  
+        When I was examining the books and bookloans files I noticed that when reading the files, I always ended up with a very
+        random "\ufeff1" appearing right at the begning of the data from the file.  Further examination with VS Code showed that the
+        encoding of the file was "utf-8 with BOM" and that this random sequence was a symptom.  To corrrect this, the file had to be opened
+        with "utf-8-sig" encoding.  I did consider if the encoding should also be made a parameter, but ultimately for these tasks kept this hard coded
+        as both files share the same encoding.
 
-    Returns:
-    data -- the object read from the file.
+        I also try to catch errors using a try/except block, I have one specific error "FileNotFoundError" and a generic catch all.  Error messages for
+        both these occasions make use of string formatting to pass the fileIn parameter, which futher enhances re-usability.
+        I fruther call sys.exit(1) which stops the execution and allows the OS to know there was a problem.
+
+        I have checked the FileNotFound exception by passing in the name of a non-existing file.
+
+        Keyword arguments:
+            fileIn -- the file object whi chwill be opened
+            skipHeader -- some files have "Headers" in the first row, if this is true we ignore these (defaults to False)
+
+        Returns:
+            data -- the object read from the file.
     """
     # setup a variable to hold the data from the file
     data = ''
@@ -42,26 +52,30 @@ def openFile(fileIn, skipHeader = False):
     return data
 
 def convertEpochToReadable(dateIn):
-    """
-    Convert Excel Epoch time to a sting.
+    """Convert Excel Epoch time to a sting.
 
-    Keyword arguments:
-    dateIn -- the date (in excel epoch) format
-
-    Returns:
-    dateOut -- a date in string format (eg 12-01-1996)
+    This strange epoch format was a challenge for me.  In order to check if the date was in 2019 (which was asked for in the question) the only
+    way I could think was to convert this format to something "human" readable and then check for the year.  This function simply takes in the epoch 
+    date and passes out a human readable string.
 
     Note:
     Excel has a strange idea of epoch, as well a bug from Lotus notes, to convert the date to a readable format
     I used the following code, which was taken from the  Stackover Flow post referenced:
     
     https://stackoverflow.com/questions/14271791/converting-date-formats-python-unusual-date-formats-extract-ymd
-    
+
+    Before using this function, I tested this by taking the date columns in the bookloans.csv and converting them to "date" format.  
+    I then checked that the dates returned by the function matched those of excel.  They did.
+
+        Keyword arguments:
+            dateIn -- the date (in excel epoch) format
+
+        Returns:
+            dateOut -- a date in string format (eg 12-01-1996)   
     """      
     # Mac and PC excel have different "start dates" - using a PC, but leaving the mac code in if needed.
     EXCEL_DATE_SYSTEM_PC=1900
-    EXCEL_DATE_SYSTEM_MAC=1904
-
+    
     dateOut = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(dateIn-2)
 
     dateOut = dateOut.strftime("%d-%m-%Y")
@@ -69,16 +83,16 @@ def convertEpochToReadable(dateIn):
     return dateOut
 
 def containsDate(stringDate, dateToCheck):
-    """
-    Checks if a string contains another String.
+    """Checks if a string contains another String.
 
-    Keyword arguments:
-    stringDate -- a date in string format, in truth this could be ANY string.
-    dateToCheck -- a part of the date to check, in truth this could be any string.
+    This takes two strings and returns a boolean if there is a substring match.  This is marked as "containsDate" but it is essentially a substring matching
+    function and could be renamed and still not loose any readability or functionality.
 
-    Notes:
-    This is essentially a check to see if a substring exists inside a string.  However, being in a function makes it easier to read.
+        Keyword arguments:
+            stringDate -- a date in string format, in truth this could be ANY string.
+            dateToCheck -- a part of the date to check, in truth this could be any string.
     """
+    # basic substring matching here.  If we find the substring, return True, else return False.
     if dateToCheck in stringDate:
         return True
     else:
@@ -184,10 +198,10 @@ def createReport(fileName, headers, content):
 
 # Task 1 specific code
 reportHeaders = ['Book Number','Title','Author','Times Loaned 2019']
-books = openFile(booksFile, False)
-loans = openFile(bookloansFile, False)
+books = openFile(BOOKSFILE, False)
+loans = openFile(BOOKLOANSFILE, False)
 temp = buildTask1Details(loans)
 contents = sortAndGenerateTask1Content(temp)
-createReport(reportFileTask1, reportHeaders, contents)
+createReport(REPORTFILETASK_1, reportHeaders, contents)
 
 
