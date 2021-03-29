@@ -8,10 +8,9 @@ from pprint import pprint
 # csv file names
 bookloansFile = 'bookloans.csv'
 booksFile = 'books.csv'
-reportFileTask1 = 'Task_1_report.csv'
-reportFileTask2 = 'Task_2_report.csv'
 reportFileTask3 = 'Task_3_report.csv'
-loanPeriod = 14
+
+LOAD_PERIOD = 14
 
 def openFile(fileIn, skipHeader = False):
     """Open a file.
@@ -69,48 +68,55 @@ def convertEpochToReadable(dateIn):
     return dateOut    
 
 def buildTask3Details(loans):
-    """
-    Generate the content for the report.
+    """Generate the content for the report.
 
     Keyword arguments:
     loans -- the list of data on the loans
     """
     reportDict = {}
-    noOfUsers = 0
-    noOfUsersLate = 0 
-    totalDaysLate = 0
-    users = set()
-    usersLate = set()
+    totalDaysLate = 0 # counter to count the number of total days late
+    users = set() # used to store the UNIQUE members
+    usersLate = set() #used to store the UNIQUE members who are late (bad members)
+    totalLoansLate = 0    
     
+    # print a nice header for the screen
     print ("{:<15} {:<10} {:<20} {:<20} {:<20}".format('book','member', 'start date', 'end date', 'days loaned'))
+    
+    # loop through all the rows in the loans (bookloans) file
     for row in loans:        
-        # get the booknumber from the bookloans list
-        bookNumber = row[0]
-        bookNumber = int(bookNumber)
-        member = row[1]        
-        loanStart = int(row[2])
-        loanEnd = int(row[3])
-        loanStartReadable = convertEpochToReadable(loanStart)        
-        loanEndReadable = ""
-        loanStatus = ""
         
-
-
-        daysLate = 0 
-        loanLen = 0        
+        # assign some commonly used columns to variables to make them more readable
+        bookNumber = row[0]  
+        #bookNumber = int(bookNumber)
+        
+        member = row[1] 
+        loanStart = int(row[2]) # grab the loan start and make it an int
+        loanEnd = int(row[3])  # grab the loan end and make it an int
+        loanStartReadable = convertEpochToReadable(loanStart) # for the output, convert the loan start to a human readable format
+        loanEndReadable = "" # loan end will be empty as it will depend if loan end is "0" or populated
+        loanStatus = "" # again used for the report output
+       
+        daysLate = 0 # placeholder count for the number of days over 14 that any late items are
+        loanLen = 0 # placeholder for loan length
+        
+        # if the loanEnd is not 0 (ie the item has been returned)
         if loanEnd != 0:
+            # get the "human readable" version of the date
             loanEndReadable = convertEpochToReadable(loanEnd)
+            # work out how long the loan was (we can simply subtract epoch dates for this)
             loanLen = loanEnd - loanStart
         else:
+            # otherwise the item is still on loan
             loanEndReadable = "Item on loan"
 
         # be a smart ass and work out if the books on loan are overdue based on now date?
-        if loanLen > 14:
+        if loanLen > LOAD_PERIOD:
             loanStatus = "Was Late"
             if member not in usersLate:
                 usersLate.add(member)
             daysLate = loanLen - 14
-            totalDaysLate =+ daysLate
+            totalDaysLate += daysLate
+            totalLoansLate += 1
         elif loanEnd != 0 and loanLen <=14:
             loanStatus = "Returned on time"        
         
@@ -119,10 +125,11 @@ def buildTask3Details(loans):
 
         print("{:<15} {:<10} {:<20} {:<20} {:<20} {:<20}".format(bookNumber, member, loanStartReadable, loanEndReadable, loanLen, loanStatus))
 
-    print(usersLate) 
-    print(len(usersLate))
-    print(len(users))
+    #print(usersLate) 
+    print(">>",len(usersLate))
+    print("<<",len(users))
     print(totalDaysLate)
+    print(totalLoansLate)
     return reportDict
 
 
