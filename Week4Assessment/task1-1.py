@@ -67,7 +67,7 @@ def open_file(fileIn, skipHeader=False):
     return data
 
 
-def convertEpochToReadable(dateIn):
+def convertEpochToReadable(date_in):
     """Convert Excel Epoch time to a sting.
 
     This strange epoch format was a challenge for me.  In order to check if
@@ -99,7 +99,7 @@ def convertEpochToReadable(dateIn):
     # leaving the mac code in if needed.
     EXCEL_DATE_SYSTEM_PC = 1900
 
-    dateOut = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(dateIn-2)
+    dateOut = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(date_in-2)
 
     dateOut = dateOut.strftime("%d-%m-%Y")
 
