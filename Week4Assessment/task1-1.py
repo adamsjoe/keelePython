@@ -8,7 +8,7 @@ BOOKSFILE = 'books.csv'
 REPORTFILETASK_1 = 'Task_1_report.csv'
 
 
-def openFile(fileIn, skipHeader=False):
+def open_file(fileIn, skipHeader=False):
     """Open a file and returns the data.
 
         Wraps a basic file open in a function to allow this
@@ -106,7 +106,7 @@ def convertEpochToReadable(dateIn):
     return dateOut
 
 
-def containsDate(stringDate, dateToCheck):
+def contains_date(stringDate, dateToCheck):
     """Checks if a string contains another String.
 
     This takes two strings and returns a boolean if there is a substring match.
@@ -128,85 +128,84 @@ def containsDate(stringDate, dateToCheck):
         return False
 
 
-def buildTask1Details(loans):
-    """
-    Generate the content for the report.
+def build_task1_details(loans):
+    """Generate the content for the report.
 
     Keyword arguments:
     loans -- the list of data on the loans
     """
-    reportDict = {}
+    report_dict = {}
     for row in loans:
         # make things easier to reference
-        bookNumber = row[0]
-        bookNumber = int(bookNumber)
+        book_number = row[0]
+        book_number = int(book_number)
 
         # get the loaned date, convert this to an int and convert to a
         # readable string
-        loanedDateEpoch = row[2]
-        loanedDateEpoch = int(loanedDateEpoch)
-        LoanedDateReadable = convertEpochToReadable(loanedDateEpoch)
+        loaned_date_epoch = row[2]
+        loaned_date_epoch = int(loaned_date_epoch)
+        Loaned_date_readable = convertEpochToReadable(loaned_date_epoch)
 
         # We will store the info on the books in a nested dictionary
         # using the booknumber as a key.
         # First ensure the book is not already present:
-        if bookNumber not in reportDict:
-            reportDict[bookNumber] = {}
+        if book_number not in report_dict:
+            report_dict[book_number] = {}
 
-        if bookNumber in reportDict:
+        if book_number in report_dict:
             # want to check if the date was in 2019, if so add it to a
             # "loaned" count
-            if containsDate(LoanedDateReadable, '2019'):
+            if contains_date(Loaned_date_readable, '2019'):
                 # if the book was loanded in 2019, get the number of
                 # times this has been out.
-                loanedTimes = reportDict[bookNumber].get("timesOut2019")
+                loaned_times = report_dict[book_number].get("timesOut2019")
 
                 # However, we may get a None type.  In this occasion,
                 # we can assume the bookNumber isn't in the dictionary,
                 # so set the loanedTimes as 1
-                if loanedTimes is None:
-                    loanedTimes = 1
+                if loaned_times is None:
+                    loaned_times = 1
                 else:
-                    loanedTimes += 1
+                    loaned_times += 1
 
             # Add the times loaned in 2019 to a field in the dictionary
-            reportDict[bookNumber]["timesOut2019"] = loanedTimes
+            report_dict[book_number]["timesOut2019"] = loaned_times
 
             # It seems that some books in the bookloans file don't exist
             # in the books file, so we need to cover this.  We will use
             # the bookFound flag in a search of the books data for the
             # bookNumber used in the loans file.
-            bookFound = False
+            book_found = False
 
             for thing in books:
-                bookRef = thing[0]
+                book_ref = thing[0]
                 # bit sucky, to keep code working I had to bring in the
                 # headers.
-                if bookRef != 'Number':
-                    bookRef = int(bookRef)
-                if bookRef == bookNumber:
-                    bookFound = True
-            if bookFound:
+                if book_ref != 'Number':
+                    book_ref = int(book_ref)
+                if book_ref == book_number:
+                    book_found = True
+            if book_found:
                 # we have found the book - so add the author and title
                 # to fields.
-                bookTitle = books[bookNumber][1]
-                bookAuthor = books[bookNumber][2]
+                book_title = books[book_number][1]
+                book_author = books[book_number][2]
             else:
                 # We cannot disregarad - so we will use some placeholder data.
-                bookTitle = "No Title on file"
-                bookAuthor = "No Author on file"
+                book_title = "No Title on file"
+                book_author = "No Author on file"
         else:
             # this is a new book
-            reportDict[bookNumber]["timesOut2019"] = 1
+            report_dict[book_number]["timesOut2019"] = 1
 
         # add to fields
-        reportDict[bookNumber]["title"] = bookTitle
-        reportDict[bookNumber]["author"] = bookAuthor
+        report_dict[book_number]["title"] = book_title
+        report_dict[book_number]["author"] = book_author
     # print(reportDict[1]['timesOut2019'])
-    return reportDict
+    return report_dict
 
 
-def sortAndGenerateTask1Content(dataIn):
+def sort_and_generate_task1_content(data_in):
     """For task 1 this converts the dictionary to a list and sorts at the
     same time.
 
@@ -216,42 +215,42 @@ def sortAndGenerateTask1Content(dataIn):
     sorts on the field timesOutIn2019 and then converts this to a list for
     use with the CSV writer import.
     """
-    reportOut = []
+    report_out = []
     print(
         "{:<12} {:<60} {:<40} {:<10}".format
         ('Book Number', 'Title', 'Author', 'Times Loaned 2019')
         )
-    for k, v in sorted(dataIn.items(), key=lambda e: e[1]["timesOut2019"]):
+    for k, v in sorted(data_in.items(), key=lambda e: e[1]["timesOut2019"]):
         item = [k, v['title'], v['author'], v['timesOut2019']]
-        reportOut.append(item)
+        report_out.append(item)
         print(
             "{:<12} {:<60} {:<40} {:<10}".format
             (k, v['title'], v['author'], v['timesOut2019'])
         )
-    return reportOut
+    return report_out
 
 
-def createReport(fileName, headers, content):
+def create_report(file_name, headers, content):
     """Creates a report file (currently a CSV)
 
     Keyword
     """
     try:
-        with open(fileName, 'w', newline="") as outFile:
-            csvwriter = csv.writer(outFile)
+        with open(file_name, 'w', newline="") as out_file:
+            csvwriter = csv.writer(out_file)
             csvwriter.writerow(headers)
             csvwriter.writerows(content)
     except:
         print(
             'Trying to create {} failed.  No further information was available'
-            .format(fileName))
+            .format(file_name))
         sys.exit(1)
 
 
 # Task 1 specific code
 reportHeaders = ['Book Number', 'Title', 'Author', 'Times Loaned 2019']
-books = openFile(BOOKSFILE, False)
-loans = openFile(BOOKLOANSFILE, False)
-temp = buildTask1Details(loans)
-contents = sortAndGenerateTask1Content(temp)
-createReport(REPORTFILETASK_1, reportHeaders, contents)
+books = open_file(BOOKSFILE, False)
+loans = open_file(BOOKLOANSFILE, False)
+temp = build_task1_details(loans)
+contents = sort_and_generate_task1_content(temp)
+create_report(REPORTFILETASK_1, reportHeaders, contents)
