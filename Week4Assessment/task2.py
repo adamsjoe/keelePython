@@ -89,7 +89,7 @@ def create_report(file_name, headers, content):
         )
         sys.exit(1)
 
-        
+
 def build_task2_details(loans):
     """Generate the content for the report.
 
