@@ -160,14 +160,14 @@ def sort_and_generate_task2_content(data_in, task_num):
     report_out = []
     if task_num == "Genre":
         print("{:<20} {:<10}".format('Genre', 'Count'))
-        for k, v in data_in.items():
+        for k, v in sorted(data_in.items(), key=lambda e: e[1], reverse=True):
             item = [k, v]
             report_out.append(item)
             print("{:<20} {:<10}".format(k, v))
         return report_out
     elif task_num == "SubGenre":
         print("{:<20} {:<10}".format('Sub-Genre', 'Count'))
-        for k, v in data_in.items():
+        for k, v in sorted(data_in.items(), key=lambda e: e[1], reverse=True):
             item = [k, v]
             report_out.append(item)
             print("{:<20} {:<10}".format(k, v))
