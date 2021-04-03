@@ -270,8 +270,8 @@ def create_report(file_name, headers, content):
 report_headers = ['Book Number', 'Title', 'Author', 'Times Loaned 2019']
 
 # Open the CSV files and assign them to variables
-books = open_file(BOOKSFILE, False)
-loans = open_file(BOOKLOANSFILE, False)
+books = open_file(BOOKSFILE)
+loans = open_file(BOOKLOANSFILE)
 
 temp = build_task1_details(loans)
 contents = sort_and_generate_task1_content(temp)

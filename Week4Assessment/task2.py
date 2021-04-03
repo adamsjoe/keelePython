@@ -69,6 +69,27 @@ def open_file(file_in, skip_header=False):
     return data
 
 
+def create_report(file_name, headers, content):
+    """Creates a report file (currently a CSV)
+
+    Keyword arguments:
+        file_name -- the file we wish to create
+        headers -- a list containing the header columns for the report
+        content -- a list with the data to be populated in the file.
+    """
+    try:
+        with open(file_name, 'w', newline="") as out_file:
+            csvwriter = csv.writer(out_file)
+            csvwriter.writerow(headers)
+            csvwriter.writerows(content)
+    except:
+        print(
+            'Trying to create {} failed.  No further information was available'
+            .format(file_name)
+        )
+        sys.exit(1)
+
+        
 def build_task2_details(loans):
     """Generate the content for the report.
 
@@ -153,27 +174,6 @@ def sort_and_generate_task2_content(data_in, task_num):
         return report_out
     else:
         print("incorrect task number.  please try again")
-        sys.exit(1)
-
-
-def create_report(file_name, headers, content):
-    """Creates a report file (currently a CSV)
-
-    Keyword arguments:
-        file_name -- the file we wish to create
-        headers -- a list containing the header columns for the report
-        content -- a list with the data to be populated in the file.
-    """
-    try:
-        with open(file_name, 'w', newline="") as out_file:
-            csvwriter = csv.writer(out_file)
-            csvwriter.writerow(headers)
-            csvwriter.writerows(content)
-    except:
-        print(
-            'Trying to create {} failed.  No further information was available'
-            .format(file_name)
-        )
         sys.exit(1)
 
 
