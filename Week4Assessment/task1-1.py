@@ -252,7 +252,7 @@ def create_report(file_name, headers, content):
         content -- a list with the data to be populated in the file.
     """
     try:
-        with open(file_name, 'w', newline="") as out_file:
+        with open(file_name, 'a', newline="") as out_file:
             csvwriter = csv.writer(out_file)
             csvwriter.writerow(headers)
             csvwriter.writerows(content)
