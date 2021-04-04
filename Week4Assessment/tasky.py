@@ -1,9 +1,6 @@
 import sys
 import csv
 import datetime
-from pprint import pprint
-
-#reportDict = {}
 
 # csv file names
 bookloansFile = 'bookloans.csv'
@@ -12,12 +9,14 @@ reportFileTask3 = 'Task_3_report.csv'
 
 LOAD_PERIOD = 14
 
-def openFile(fileIn, skipHeader = False):
+
+def openFile(fileIn, skipHeader=False):
     """Open a file.
     
     Keyword arguments:
     fileIn -- the file object which will be opened
-    skipHeader -- some files have "Headers" in the first row, if this is true we ignore these (defaults to False)
+    skipHeader -- some files have "Headers" in the first row, if this is true
+    we ignore these (defaults to False)
 
     Returns:
     data -- the object read from the file.
@@ -25,20 +24,24 @@ def openFile(fileIn, skipHeader = False):
     # setup a variable to hold the data from the file
     data = ''
     try:
-        with open(fileIn, encoding='utf-8-sig',mode='r') as file: # utf-8 with BOM results in \ufeff1 appearing
+        # utf-8 with BOM results in \ufeff1 appearing
+        with open(fileIn, encoding='utf-8-sig', mode='r') as file:
             reader = csv.reader(file)
-            if skipHeader == True:
+            if skipHeader is True:
                 next(reader, None)
             
             data = [tuple(row) for row in reader]
-    except FileNotFoundError: # handle file not found errors with a nice error message
+    # handle file not found errors with a nice error message            
+    except FileNotFoundError: 
         print('File {} does not exist.'.format(fileIn))
         sys.exit(1)
-    except: # generic catch all error message
+        # generic catch all error message
+    except:
         print('Trying to open {} failed.  No further information was available'.format(fileIn))
         sys.exit(1)
     # return the data variable (the file contents)
     return data
+
 
 def convertEpochToReadable(dateIn):
     """
@@ -51,21 +54,19 @@ def convertEpochToReadable(dateIn):
     dateOut -- a date in string format (eg 12-01-1996)
 
     Note:
-    Excel has a strange idea of epoch, as well a bug from Lotus notes, to convert the date to a readable format
-    I used the following code, which was taken from the  Stackover Flow post referenced:
-    
-    https://stackoverflow.com/questions/14271791/converting-date-formats-python-unusual-date-formats-extract-ymd
-    
-    """      
-    # Mac and PC excel have different "start dates" - using a PC, but leaving the mac code in if needed.
-    EXCEL_DATE_SYSTEM_PC=1900
-    EXCEL_DATE_SYSTEM_MAC=1904
+    Excel has a strange idea of epoch, as well a bug from Lotus notes,
+    to convert the date to a readable format I used the following code,
+    which was taken from the  Stackover Flow post referenced:
+    """
+    # Mac and PC excel have different "start dates" - using a PC, 
+    EXCEL_DATE_SYSTEM_PC = 1900
 
     dateOut = datetime.date(EXCEL_DATE_SYSTEM_PC, 1, 1) + datetime.timedelta(dateIn-2)
 
     dateOut = dateOut.strftime("%d-%m-%Y")
 
-    return dateOut    
+    return dateOut
+
 
 def buildTask3Details(loans):
     """Generate the content for the report.
