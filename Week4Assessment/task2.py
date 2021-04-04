@@ -78,7 +78,7 @@ def create_report(file_name, headers, content):
         content -- a list with the data to be populated in the file.
     """
     try:
-        with open(file_name, 'w', newline="") as out_file:
+        with open(file_name, 'a', newline="") as out_file:
             csvwriter = csv.writer(out_file)
             csvwriter.writerow(headers)
             csvwriter.writerows(content)
@@ -93,13 +93,16 @@ def create_report(file_name, headers, content):
 def build_task2_details(loans):
     """Generate the content for the report.
 
+    This function will build up a tuple containing 2 dictionaries.  One
+    dictionary for genre and one for subgenre
+
     Keyword arguments:
-    loans -- the list of data on the loans
+        loans -- the list of data on the loans
     """
     report_dict = {}
     genre_dict = {}
     sub_genre_dict = {}
-    genreCount = 0
+    genre_count = 0
     sub_genre_count = 0
     for row in loans:
         # get the booknumber from the bookloans list
@@ -124,13 +127,13 @@ def build_task2_details(loans):
             if genre not in genre_dict:
                 if genre != "":
                     genre_dict[genre] = {}
-                    genreCount = 0
+                    genre_count = 0
                     genre_dict[genre] = 1
             else:
-                genreCount = genre_dict[genre]
-                genreCount = int(genreCount)  # not needed as we control this
-                genreCount += 1
-                genre_dict[genre] = genreCount
+                genre_count = genre_dict[genre]
+                genre_count = int(genre_count)  # not needed as we control this
+                genre_count += 1
+                genre_dict[genre] = genre_count
 
             if sub_genre not in sub_genre_dict:
                 if sub_genre != "":
