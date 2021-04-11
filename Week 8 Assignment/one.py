@@ -1,6 +1,6 @@
 import sys
 import csv
-
+from os import system, name
 
 class LibraryMember(object):
     def __init__(self, id_no, first_name, last_name, gender, email, card_no):
@@ -21,6 +21,30 @@ class LibraryMember(object):
 
     def assignCardNo(self, new_card_no):
         self._card_no = new_card_no
+
+    def scan(self):
+        return self._id_no
+
+
+class LibraryBook(object):
+    def __init__(self, book_number, author, title, genre, sub_genre, publisher):
+        self._book_number = book_number
+        self._author = author
+        self._title = title
+        self._genre = genre
+        self._sub_genre = sub_genre
+        self._publisher = publisher
+
+    def scan(self):
+        return self._book_number
+
+
+class BookLoan(object):
+    def __init__(self, book_number, member_number, date_out, date_returned):
+        self._book_number = book_number
+        self._member_number = member_number
+        self._date_out = date_out
+        self._date_returned = date_returned
 
 
 def open_file(file_in, skip_header=False):
@@ -43,23 +67,112 @@ def open_file(file_in, skip_header=False):
     return data
 
 
+def clear():
+    # for windows
+    if name == 'nt':
+        _ = system('cls')
+    # for mac and linux(here, os.name is 'posix')
+    else:
+        _ = system('clear')
+
+
+def main_menu():
+    strs = ('Enter 1 for Member Services\n'
+            'Enter 2 for Book Loans\n'
+            'Enter 3 for Book Returns\n'
+            'Enter 4 for Book Reservations\n'
+            'Enter 5 to exit : ')
+    choice = input(strs)
+    return int(choice)
+
+
+def issue_book_loan():
+    clear()
+    print("******************************************************************")
+    print("*                                                                *")
+    print("*                        BOOK LOAN                               *")
+    print("*                                                                *")
+    print("******************************************************************")
+    print()
+    print()
+    print()
+    # need to check here and do a search that the book and member both exist
+    book = input("Please enter a book number: ")
+    member = input("Please enter a member card number: ")
+    return True
+
+
+def book_returns():
+    clear()
+    print("******************************************************************")
+    print("*                                                                *")
+    print("*                       BOOK RETURN                              *")
+    print("*                                                                *")
+    print("******************************************************************")
+    return True
+
+
+def member_services():
+    clear()
+    print("******************************************************************")
+    print("*                                                                *")
+    print("*                     MEMBER SERVICES                            *")
+    print("*                                                                *")
+    print("******************************************************************")
+    return True
+
+
+def book_reservations():
+    clear()
+    print("******************************************************************")
+    print("*                                                                *")
+    print("*                    BOOK RESERVATION                            *")
+    print("*                                                                *")
+    print("******************************************************************")
+    return True
+
+
+def good_bye():
+    clear()
+    print("Thank you and have a nice day.")
+    # TODO cleanup here - like save files
+    sys.exit(0)
+
+
 def sendEmail(addressee, subject, body):
     print("Sending email to '{}' with the subject '{}' and body '{}"
           .format(addressee, subject, body))
 
 
 members = open_file('members.csv', True)
-print(type(members))
+books = open_file('books.csv', True)
+book_loans = open_file('bookloans.csv')
+
 
 # convert the members to objects?
 for line in members:
     memInstance = "member" + line[0]
-    memInstance = LibraryMember(line[0],
+    memInstance = LibraryMember(
+                                line[0],
                                 line[1],
                                 line[2],
                                 line[3],
                                 line[4],
-                                line[5])
+                                line[5]
+                               )
 
-    # print(memInstance.printDetails())
-
+# can we only use json, time, csv imports?
+# do we need to care about numbers of books? (ie book loans, do we need to check if we have "stock" of a book?)
+while True:
+    choice = main_menu()
+    if choice == 1:
+        member_services()
+    elif choice == 2:
+        issue_book_loan()
+    elif choice == 3:
+        book_returns()
+    elif choice == 4:
+        book_reservations()
+    elif choice == 5:
+        good_bye()
+        break
