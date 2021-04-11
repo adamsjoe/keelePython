@@ -1,14 +1,26 @@
+import sys
 import csv
 
 
 class LibraryMember(object):
     def __init__(self, id_no, first_name, last_name, gender, email, card_no):
-        self.id_no = id_no
-        self.first_name = first_name
-        self.last_name = last_name
-        self.gender = gender
-        self.email = email
-        self.card_no = card_no
+        self._id_no = id_no
+        self._first_name = first_name
+        self._last_name = last_name
+        self._gender = gender
+        self._email = email
+        self._card_no = card_no
+
+    def printDetails(self):
+        print("Member ID number: ", self._id_no)
+        print("--> Member First Name: ", self._first_name)
+        print("--> Member Last Name : ", self._last_name)
+        print("--> Member Gender    : ", self._gender)
+        print("--> Member Email     : ", self._email)
+        print("--> Member Card No.  : ", self._card_no)
+
+    def assignCardNo(self, new_card_no):
+        self._card_no = new_card_no
 
 
 def open_file(file_in, skip_header=False):
@@ -36,27 +48,18 @@ def sendEmail(addressee, subject, body):
           .format(addressee, subject, body))
 
 
-def checkInput(input, max_options):
-    if input.isalpha:
-        input = input.upper()
-        
+members = open_file('members.csv', True)
+print(type(members))
 
-def mainMenu():
-    print("**************************************")
-    print("*            LIBRARY SYSTEM          *")
-    print("**************************************")
-    print("")
-    print("")
-    print("1) Member Details")
-    print("")
-    print("Q) Quit")
-    print("")
-    
-    menu_option = input("Please select menu option: ")
-    
-    checkInput(menu_option, 1)
-    
+# convert the members to objects?
+for line in members:
+    memInstance = "member" + line[0]
+    memInstance = LibraryMember(line[0],
+                                line[1],
+                                line[2],
+                                line[3],
+                                line[4],
+                                line[5])
 
-## main loop ##
-# as this is a SYSTEM we could do a while loop and have a menu?
-mainMenu()
+    # print(memInstance.printDetails())
+
