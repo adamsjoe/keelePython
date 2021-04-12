@@ -99,14 +99,14 @@ def issue_book_loan():
     print()
     print()
     # need to check here and do a search that the book and member both exist
-    book_id_no = input("Please enter a book number: ")
-
-    for book in memInstance:
-        if book_id_no == memInstance._id_no:
-            print("i found it!")
-            break
-
     member = input("Please enter a member card number: ")
+ 
+    for obj in the_members:
+        if obj._id_no == member:
+            print("member found")
+            obj.printDetails()
+
+    book_id_no = input("Please enter a book number: ")
     return True
 
 
@@ -157,30 +157,18 @@ books = open_file('books.csv', True)
 book_loans = open_file('bookloans.csv')
 
 
-# convert the members to objects?
-# this seems wrong
-# for line in members:
-#     memInstance = "member-" + line[0]
-#     memInstance = LibraryMember(
-#                                 line[0],
-#                                 line[1],
-#                                 line[2],
-#                                 line[3],
-#                                 line[4],
-#                                 line[5]
-#                                )
- 
-# stores the instances of the object in a list
-# class MyClass: 
-# 	def __init__(self, val): 
-# 		self.val = val 
+the_members = []
 
-# ls = [1,2,3] 
+for line in members:
+    the_members.append(LibraryMember(
+                                line[0],
+                                line[1],
+                                line[2],
+                                line[3],
+                                line[4],
+                                line[5]
+                               ))
 
-# # objs = {val: MyClass(val) for val in ls} 
-# objs = [MyClass(val) for val in ls] 
-
-# or use dicts key is unique, value is instance of the object?
 
 
 # notes to ask
