@@ -2,6 +2,7 @@ import sys
 import csv
 from os import system, name
 
+
 class LibraryMember(object):
     def __init__(self, id_no, first_name, last_name, gender, email, card_no):
         self._id_no = id_no
@@ -19,7 +20,7 @@ class LibraryMember(object):
         print("--> Member Email     : ", self._email)
         print("--> Member Card No.  : ", self._card_no)
 
-    def assignCardNo(self, new_card_no):
+    def assign_card_no(self, new_card_no):
         self._card_no = new_card_no
 
     def scan(self):
@@ -27,7 +28,8 @@ class LibraryMember(object):
 
 
 class LibraryBook(object):
-    def __init__(self, book_number, author, title, genre, sub_genre, publisher):
+    def __init__(self, book_number, author, title, genre, sub_genre,
+                 publisher):
         self._book_number = book_number
         self._author = author
         self._title = title
@@ -97,7 +99,13 @@ def issue_book_loan():
     print()
     print()
     # need to check here and do a search that the book and member both exist
-    book = input("Please enter a book number: ")
+    book_id_no = input("Please enter a book number: ")
+
+    for book in memInstance:
+        if book_id_no == memInstance._id_no:
+            print("i found it!")
+            break
+
     member = input("Please enter a member card number: ")
     return True
 
@@ -139,7 +147,7 @@ def good_bye():
     sys.exit(0)
 
 
-def sendEmail(addressee, subject, body):
+def send_email(addressee, subject, body):
     print("Sending email to '{}' with the subject '{}' and body '{}"
           .format(addressee, subject, body))
 
@@ -150,19 +158,35 @@ book_loans = open_file('bookloans.csv')
 
 
 # convert the members to objects?
-for line in members:
-    memInstance = "member" + line[0]
-    memInstance = LibraryMember(
-                                line[0],
-                                line[1],
-                                line[2],
-                                line[3],
-                                line[4],
-                                line[5]
-                               )
+# this seems wrong
+# for line in members:
+#     memInstance = "member-" + line[0]
+#     memInstance = LibraryMember(
+#                                 line[0],
+#                                 line[1],
+#                                 line[2],
+#                                 line[3],
+#                                 line[4],
+#                                 line[5]
+#                                )
+ 
+# stores the instances of the object in a list
+# class MyClass: 
+# 	def __init__(self, val): 
+# 		self.val = val 
 
+# ls = [1,2,3] 
+
+# # objs = {val: MyClass(val) for val in ls} 
+# objs = [MyClass(val) for val in ls] 
+
+# or use dicts key is unique, value is instance of the object?
+
+
+# notes to ask
 # can we only use json, time, csv imports?
-# do we need to care about numbers of books? (ie book loans, do we need to check if we have "stock" of a book?)
+# do we need to care about numbers of books? (ie book loans, do we need to
+# check if we have "stock" of a book?)
 while True:
     choice = main_menu()
     if choice == 1:
