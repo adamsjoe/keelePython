@@ -57,7 +57,6 @@ with open('members.json') as membersfile:
     members_data = json.load(membersfile)
 
 # some placeholders
-# data = {}
 jdata = []
 # parse through the books and then find out if the book is loaned or now
 # doing it this way eliminates books we don't have in the books file (not asked
@@ -85,13 +84,72 @@ for row in book_data:
                 data["Member_id"] = loan_row["Member_id"]
                 data["Date_loaned"] = loan_row["Date_loaned"]
                 data["Date_returned"] = loan_row["Date_returned"]
-
-                print("data is :", data)
-
                 jdata.append(data)
-                
-                print("jdata is: ", jdata)
+
 
 with open(CURRENT_BOOKLOANSFILE_JSON, 'w', encoding='utf-8') as filely:
     meh = json.dumps(jdata, indent=4)
     filely.write(meh)
+
+with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
+    currently_loaned_books = json.load(current_loans)
+
+
+def check_book_loan_status(book, loaned_books_list):
+    if not any(d['Book_id'] == book for d in loaned_books_list):
+        return True  # book is available
+    else:
+        return False  # book is already on loan
+
+
+# check if the book is on loan (ie if it is present in the currently on
+# loan list, it is on loan)
+# if not any(d['Book_id'] == '1' for d in currently_loaned_books):
+#     print("book not on loan")
+
+# book_to_check = input("Enter book Number : ")
+
+# state = check_book_loan_status(book_to_check, currently_loaned_books)
+
+# print("The book is available : ", state)
+
+
+class LibraryBook(object):
+    def __init__(self, book_number, author, title, genre, sub_genre,
+                 publisher):
+        self._book_number = book_number
+        self._author = author
+        self._title = title
+        self._genre = genre
+        self._sub_genre = sub_genre
+        self._publisher = publisher
+        self._available = check_book_loan_status(book_number,
+                                                 currently_loaned_books)
+
+    def printDetails(self):
+        print("Details for Book Number"), self._book_number
+        print("--> Book Number      : ", self._book_number)
+        print("--> Book Title       : ", self._title)
+        print("--> Book Author      : ", self._author)
+        print("--> Book Genre       : ", self._genre)
+        print("--> Book Sub Genre   : ", self._sub_genre)
+        print("--> Book Publisher   : ", self._publisher)
+        print("--> Book Available?  : ", self._available)
+
+    def scan(self):
+        return self._book_number
+
+
+books = []
+for line in book_data:
+    books.append(LibraryBook(
+                        line["Number"],
+                        line["Title"],
+                        line["Author"],
+                        line["Genre"],
+                        line["SubGenre"],
+                        line["Publisher"]
+                        ))
+
+for row in books:
+    print(row.printDetails())
