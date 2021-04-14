@@ -45,8 +45,8 @@ create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, loan_headers)
 
 # create a "library" :
 # this will, for each book, determing if it's "loaned" or not
-
-
+# first let#s get the json files
+# TODO add a check, if not present, generate from the csv
 with open('books.json') as booksfile:
     book_data = json.load(booksfile)
 
@@ -56,9 +56,12 @@ with open('bookloans.json') as bookloansfile:
 with open('members.json') as membersfile:
     members_data = json.load(membersfile)
 
-data = {}
+# some placeholders
+# data = {}
 jdata = []
-# doing it this way eliminates books we don't have in the books file
+# parse through the books and then find out if the book is loaned or now
+# doing it this way eliminates books we don't have in the books file (not asked
+# for, but mention in writeup)
 for row in book_data:
     # parse the books and get the number
     book_id = row['Number']
@@ -77,11 +80,17 @@ for row in book_data:
                 book_loaned = True
 
             if book_loaned is True:
+                data = {}
                 data["Book_id"] = loan_row["Book_id"]
                 data["Member_id"] = loan_row["Member_id"]
                 data["Date_loaned"] = loan_row["Date_loaned"]
                 data["Date_returned"] = loan_row["Date_returned"]
+
+                print("data is :", data)
+
                 jdata.append(data)
+                
+                print("jdata is: ", jdata)
 
 with open(CURRENT_BOOKLOANSFILE_JSON, 'w', encoding='utf-8') as filely:
     meh = json.dumps(jdata, indent=4)
