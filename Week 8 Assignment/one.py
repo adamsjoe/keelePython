@@ -3,9 +3,17 @@ import csv
 from os import system, name
 import time
 
+# file names
+BOOKLOANSFILE = 'bookloans.csv'
+BOOKSFILE = 'books.csv'
+MEMBERSFILE = 'members.csv'
+
 
 # Class definitions
 class LibraryMember(object):
+
+    max_id = 0
+
     def __init__(self, id_no, first_name, last_name, gender, email, card_no):
         self._id_no = id_no
         self._first_name = first_name
@@ -13,6 +21,8 @@ class LibraryMember(object):
         self._gender = gender
         self._email = email
         self._card_no = card_no
+        if self.max_id < int(id_no):
+            self.max_id = int(id_no)
 
     def printDetails(self):
         print("Details for Card Number"), self._card_no
@@ -27,6 +37,9 @@ class LibraryMember(object):
 
     def scan(self):
         return self._card_no
+
+    def get_max_id(self):
+        return self.max_id
 
 
 class LibraryBook(object):
@@ -172,11 +185,27 @@ def member_details():
             print("******************************************************************")
             print()
             choice2 = input("Return to member services (Y/N)")
-            choice2 = choice2.upper()  # shit
+            choice2 = choice2.upper()  # shit bug here
             while choice2 != 'Y':
                 choice2 = choice2.upper()
                 choice2 = input("Return to member services (Y/N)")
-            return True
+            # return True
+            member_services()
+
+
+def add_user(self, first_name, last_name, gender, email):
+    # we need to get the current max member number
+    try:
+        with open('members.csv', 'a', newline="") as out_file:
+            csvwriter = csv.writer(out_file)
+            csvwriter.writerow(headers)
+            csvwriter.writerows(content)
+    except:
+        print(
+            'Trying to create {} failed.  No further information was available'
+            .format(file_name)
+        )
+        sys.exit(1)
 
 
 def member_services():
@@ -210,7 +239,7 @@ def validate_email_address_format(email_in):
         return False
 
 
-def create_member(f_name, l_name, gender,e_mail):
+def create_member(f_name, l_name, gender, e_mail):
     # get the largest id
     # call a write function
     pass
@@ -236,13 +265,12 @@ def member_application():
     # now check the user does not already exist - make this a function
     for obj in the_members:
         if obj._first_name.lower() == new_member_first_name.lower() and obj._last_name.lower() == new_member_last_name.lower() and obj._gender.lower() == new_member_gender.lower() and obj._email.lower() == new_member_email.lower():
-            print("USER ALREADY EXISTS")
+            print("Unable to create user - user already present.")
             time.sleep(5)
+            member_services()
         else:
             create_member(new_member_first_name, new_member_last_name, new_member_gender, new_member_email)
             # create user in the file
-
-    
 
 
 def book_reservations():
@@ -268,9 +296,9 @@ def send_email(addressee, subject, body):
 
 
 # main thread
-members = open_file('members.csv', True)
-books = open_file('books.csv', True)
-book_loans = open_file('bookloans.csv')
+members = open_file(MEMBERSFILE, True)
+books = open_file(BOOKSFILE, True)
+book_loans = open_file(BOOKLOANSFILE)
 
 
 # create a list of objects for library members
