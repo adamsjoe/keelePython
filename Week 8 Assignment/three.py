@@ -2,6 +2,14 @@ import csv
 import json
 import sys
 
+BOOKLOANSFILE_CSV = 'bookloans.csv'
+BOOKSFILE_CSV = 'books.csv'
+MEMBERSFILE_CSV = 'members.csv'
+
+BOOKLOANSFILE_JSON = 'bookloans.json'
+BOOKSFILE_JSON = 'books.json'
+MEMBERSFILE_JSON = 'members.json'
+CURRENT_BOOKLOANSFILE_JSON = 'books_on_loan.json'
 
 def create_json(file_in, file_out, headers=False):
     # setup a variable to hold the data from the file
@@ -28,11 +36,11 @@ def create_json(file_in, file_out, headers=False):
 
 
 # create json files from the CSV files
-create_json('members.csv', 'members.json')
-create_json('books.csv', 'books.json')
+create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
+create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
 
 loan_headers = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
-create_json('bookloans.csv', 'bookloans.json', loan_headers)
+create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, loan_headers)
 
 # create a "library" :
 # this will, for each book, determing if it's "loaned" or not
@@ -47,17 +55,9 @@ with open('bookloans.json') as bookloansfile:
 with open('members.json') as membersfile:
     members_data = json.load(membersfile)
 
-print(type(book_data[0]))
-print(len(book_data))
-
-print(type(loans_data))
-print(len(loans_data))
-
-print(type(members_data))
-
-
 data = {}
-
+jdata = []
+# doing it this way eliminates books we don't have in the books file
 for row in book_data:
     # parse the books and get the number
     book_id = row['Number']
@@ -66,7 +66,7 @@ for row in book_data:
     # now parse the book loans to find the state
     for loan_row in loans_data:
         if loan_row['Book_id'] == book_id:
-            print("Working on book id ", book_id)
+            # print("Working on book id ", book_id)
 
             if loan_row['Date_returned'] != '0':
                 # print("book is returned")
@@ -77,9 +77,11 @@ for row in book_data:
 
             if book_loaned is True:
                 data["Book_id"] = loan_row["Book_id"]
-                data["Member_id"] = loan_row["Member_id"]                
-                data["Date_loaned"] = loan_row["Date_loaned"]                
+                data["Member_id"] = loan_row["Member_id"]
+                data["Date_loaned"] = loan_row["Date_loaned"]
                 data["Date_returned"] = loan_row["Date_returned"]
-                json_data = json.dumps(data)
+                jdata.append(data)
 
-print(json_data)
+with open(CURRENT_BOOKLOANSFILE_JSON, 'w', encoding='utf-8') as filely:
+    meh = json.dumps(jdata, indent=4)
+    filely.write(meh)
