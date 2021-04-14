@@ -1,64 +1,85 @@
 import csv
 import json
-import pickle
-from pprint import pprint
-
-class LibraryMember(object):
-
-    max_id = 0
-
-    def __init__(self, id_no, first_name, last_name, gender, email, card_no):
-        self._id_no = id_no
-        self._first_name = first_name
-        self._last_name = last_name
-        self._gender = gender
-        self._email = email
-        self._card_no = card_no
-        if self.max_id < int(id_no):
-            self.max_id = int(id_no)
-
-    def printDetails(self):
-        print("Details for Card Number"), self._card_no
-        print("--> Member ID number  : ", self._id_no)
-        print("--> Member First Name : ", self._first_name)
-        print("--> Member Last Name  : ", self._last_name)
-        print("--> Member Gender     : ", self._gender)
-        print("--> Member Email      : ", self._email)
-
-    def assign_card_no(self, new_card_no):
-        self._card_no = new_card_no
-
-    def scan(self):
-        return self._card_no
-
-    def get_max_id(self):
-        return self.max_id
+import sys
 
 
-filename = 'dogs'
-outfile = open(filename, 'wb')
+def create_json(file_in, file_out, headers=False):
+    # setup a variable to hold the data from the file
+    data = []
 
-#
-things = []
-member = LibraryMember(1, 'Joseph', 'Adams', 'Male', 'joseph@random.com', 0)
-member2 = LibraryMember(2, 'Joseph1', 'Adams1', 'Male', 'joseph@random.com1', 21)
+    try:
+        with open(file_in, encoding='utf-8-sig', mode='r') as file:
+            if headers is False:
+                reader = csv.DictReader(file,)
+            else:
+                reader = csv.DictReader(file, fieldnames=headers)
+            for row in reader:
+                data.append(row)
 
-things.append = member
-things.append = member2
+        with open(file_out, 'w', encoding='utf-8') as json_file:
+            jsonString = json.dumps(data, indent=4)
+            # jsonString = json.dump(data, json_file)
+            json_file.write(jsonString)
 
-# jstr = json.dumps(member.__dict__)
-jstr = json.dumps(member, default=vars)
-jstr2 = json.dumps(member2, default=vars)
+    # handle file not found errors with a nice error message
+    except FileNotFoundError:
+        print('File {} does not exist.'.format(file_in))
+        sys.exit(1)
 
-# things.append = jstr
-# things.append = jstr2
 
-# pickle.dump(member, outfile)
-pprint(things)
-# infile = open(filename, 'rb')
+# create json files from the CSV files
+create_json('members.csv', 'members.json')
+create_json('books.csv', 'books.json')
 
-# new_dict = pickle.load(infile)
+loan_headers = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
+create_json('bookloans.csv', 'bookloans.json', loan_headers)
 
-# infile.close()
+# create a "library" :
+# this will, for each book, determing if it's "loaned" or not
 
-# print(new_dict)
+
+with open('books.json') as booksfile:
+    book_data = json.load(booksfile)
+
+with open('bookloans.json') as bookloansfile:
+    loans_data = json.load(bookloansfile)
+
+with open('members.json') as membersfile:
+    members_data = json.load(membersfile)
+
+print(type(book_data[0]))
+print(len(book_data))
+
+print(type(loans_data))
+print(len(loans_data))
+
+print(type(members_data))
+
+
+data = {}
+
+for row in book_data:
+    # parse the books and get the number
+    book_id = row['Number']
+
+    book_loaned = False
+    # now parse the book loans to find the state
+    for loan_row in loans_data:
+        if loan_row['Book_id'] == book_id:
+            print("Working on book id ", book_id)
+
+            if loan_row['Date_returned'] != '0':
+                # print("book is returned")
+                book_loaned = False
+            else:
+                # print('book is on loan')
+                book_loaned = True
+
+            if book_loaned is True:
+                data["Book_id"] = loan_row["Book_id"]
+                data["Member_id"] = loan_row["Member_id"]                
+                data["Date_loaned"] = loan_row["Date_loaned"]                
+                data["Date_returned"] = loan_row["Date_returned"]
+                json_data = json.dumps(data)
+
+print(json_data)
