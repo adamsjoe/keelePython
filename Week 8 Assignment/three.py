@@ -11,6 +11,8 @@ BOOKSFILE_JSON = 'books.json'
 MEMBERSFILE_JSON = 'members.json'
 CURRENT_BOOKLOANSFILE_JSON = 'books_on_loan.json'
 
+LOAN_HEADERS = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
+
 
 def create_json(file_in, file_out, headers=False):
     # setup a variable to hold the data from the file
@@ -39,14 +41,11 @@ def create_json(file_in, file_out, headers=False):
 # create json files from the CSV files
 create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
 create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
-
-loan_headers = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
-create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, loan_headers)
+create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
 
 # create a "library" :
 # this will, for each book, determing if it's "loaned" or not
 # first let#s get the json files
-# TODO add a check, if not present, generate from the csv
 with open('books.json') as booksfile:
     book_data = json.load(booksfile)
 
@@ -118,20 +117,20 @@ def get_loaning_member(book, loaned_books_list):
             return row["Member_id"]
 
 
-def do_loan(lendee, book):
-    pass
+def validate_member(member_card, memberlist):
+    for row in memberlist:
+        if member_card == row.scan():
+            return row  # member exists - return obj
+        else:
+            return False  # member is a lie
 
 
-# not right
-def validate_member(member):
-    if not any(d['Book_id'] == book for d in loaned_books_list):
-        return True  # book is available
-    else:
-        return False  # book is already on loan
-
-
-def validate_book(book):
-    pass
+def validate_book(book, bookslist):
+    for row in bookslist:
+        if book == row.scan():
+            return row  # book exists
+        else:
+            return False  # book is a lie
 
 
 def do_return(book):
@@ -184,6 +183,10 @@ class LibraryBook(object):
 
     def scan(self):
         return self._book_number
+
+    def assign_to_user(self, member_id):
+        self._available = False
+        self._loanee = member_id
 
 
 # now to create a list of objects of type LibraryBook
@@ -251,5 +254,42 @@ for line in members_data:
 # for row in books:
 #     print(row.printDetails())
 
-for row in members:
-    print(row.printDetails())
+# for row in members:
+#     print(row.printDetails())
+
+
+def append_to_json(file, data):
+    with open(file, 'w', encoding='utf-8') as json_file:
+        jsonString = json.dumps(data, indent=4)
+        # jsonString = json.dump(data, json_file)
+        json_file.write(jsonString)
+
+
+def do_loan():
+    member = input("enter member card number : ")
+    real_member = validate_member(member, members)
+
+    book_to_take = input("enter book number : ")
+    real_book = validate_book(book_to_take, books)
+
+    # print book stats
+    real_book.printDetails()
+
+    real_book.assign_to_user(real_member.scan())
+
+    real_book.printDetails()
+
+    # works but uses global stuff
+    data = {}
+    data["Book_id"] = real_book.scan()
+    data["Member_id"] = real_member.scan()
+    data["Date_loaned"] = "today"
+    data["Date_returned"] = "0"
+    jdata.append(data)
+
+    # then save this
+    append_to_json(CURRENT_BOOKLOANSFILE_JSON, jdata)
+
+
+# do_loan()
+# print(currently_loaned_books)
