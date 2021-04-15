@@ -102,60 +102,20 @@ def check_book_loan_status(book, loaned_books_list):
         return False  # book is already on loan
 
 
+def get_loaned_items_cnt(member, loaned_books_list):
+    count = 0
+    for row in loaned_books_list:
+        if member == row["Member_id"]:
+            count += 1
+    return count
+
+
 def get_loaning_member(book, loaned_books_list):
     # print(book)
     # print("--")
     for row in loaned_books_list:
         if book == row["Book_id"]:
             return row["Member_id"]
-
-
-class LibraryBook(object):
-    def __init__(self, book_number, author, title, genre, sub_genre,
-                 publisher):
-        self._book_number = book_number
-        self._author = author
-        self._title = title
-        self._genre = genre
-        self._sub_genre = sub_genre
-        self._publisher = publisher
-        self._available = check_book_loan_status(book_number,
-                                                 currently_loaned_books)
-        if self._available is True:
-            self._loanee = None
-        else:
-            self._loanee = get_loaning_member(book_number,
-                                              currently_loaned_books)
-
-    def printDetails(self):
-        print("Details for Book Number"), self._book_number
-        print("--> Book Number      : ", self._book_number)
-        print("--> Book Title       : ", self._title)
-        print("--> Book Author      : ", self._author)
-        print("--> Book Genre       : ", self._genre)
-        print("--> Book Sub Genre   : ", self._sub_genre)
-        print("--> Book Publisher   : ", self._publisher)
-        print("--> Book Available?  : ", self._available)
-        print("--> Loaned To Member : ", self._loanee)
-
-    def scan(self):
-        return self._book_number
-
-
-books = []
-for line in book_data:
-    books.append(LibraryBook(
-                        line["Number"],
-                        line["Title"],
-                        line["Author"],
-                        line["Genre"],
-                        line["SubGenre"],
-                        line["Publisher"]
-                        ))
-# we now have a list of objects for the books.  Each book has a
-# state (available to loan)
-for row in books:
-    print(row.printDetails())
 
 
 def do_loan(lendee, book):
@@ -191,3 +151,105 @@ def do_startup_check():
     # if the json files are present then no need to regenerate them
     # just load the data
     pass
+
+
+# Class definition for a library book
+class LibraryBook(object):
+    def __init__(self, book_number, author, title, genre, sub_genre,
+                 publisher):
+        self._book_number = book_number
+        self._author = author
+        self._title = title
+        self._genre = genre
+        self._sub_genre = sub_genre
+        self._publisher = publisher
+        self._available = check_book_loan_status(book_number,
+                                                 currently_loaned_books)
+        if self._available is True:
+            self._loanee = None
+        else:
+            self._loanee = get_loaning_member(book_number,
+                                              currently_loaned_books)
+
+    def printDetails(self):
+        print("Details for Book Number"), self._book_number
+        print("--> Book Number      : ", self._book_number)
+        print("--> Book Title       : ", self._title)
+        print("--> Book Author      : ", self._author)
+        print("--> Book Genre       : ", self._genre)
+        print("--> Book Sub Genre   : ", self._sub_genre)
+        print("--> Book Publisher   : ", self._publisher)
+        print("--> Book Available?  : ", self._available)
+        print("--> Loaned To Member : ", self._loanee)
+
+    def scan(self):
+        return self._book_number
+
+
+# now to create a list of objects of type LibraryBook
+books = []
+for line in book_data:
+    books.append(LibraryBook(
+                        line["Number"],
+                        line["Title"],
+                        line["Author"],
+                        line["Genre"],
+                        line["SubGenre"],
+                        line["Publisher"]
+                        ))
+
+
+class LibraryMember(object):
+
+    max_id = 0
+
+    def __init__(self, id_no, first_name, last_name, gender, email, card_no):
+        self._id_no = id_no
+        self._first_name = first_name
+        self._last_name = last_name
+        self._gender = gender
+        self._email = email
+        self._card_no = card_no
+        if self._card_no != "0":
+            self._card_issue_no = card_no[-1]
+        else:
+            self._card_issue_no = "None issued"
+        self._no_of_loaned_items = get_loaned_items_cnt(id_no,
+                                                        currently_loaned_books)
+
+    def printDetails(self):
+        print("--> Member ID number   : ", self._id_no)
+        print("--> Member First Name  : ", self._first_name)
+        print("--> Member Last Name   : ", self._last_name)
+        print("--> Member Gender      : ", self._gender)
+        print("--> Member Email       : ", self._email)
+        print("--> Member Card No     : ", self._card_no)
+        print("--> Member Card Issue  : ", self._card_issue_no)
+        print("--> No of items loaned : ", self._no_of_loaned_items)
+
+    def assign_card_no(self, new_card_no):
+        self._card_no = new_card_no
+
+    def scan(self):
+        return self._card_no
+
+
+members = []
+for line in members_data:
+    members.append(LibraryMember(
+                            line["ID"],
+                            line["First Name"],
+                            line["Last Name"],
+                            line["Gender"],
+                            line["Email"],
+                            line["CardNumber"]
+                            ))
+
+
+# # we now have a list of objects for the books.  Each book has a
+# # state (available to loan)
+# for row in books:
+#     print(row.printDetails())
+
+for row in members:
+    print(row.printDetails())
