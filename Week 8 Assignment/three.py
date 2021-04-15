@@ -102,16 +102,12 @@ def check_book_loan_status(book, loaned_books_list):
         return False  # book is already on loan
 
 
-# check if the book is on loan (ie if it is present in the currently on
-# loan list, it is on loan)
-# if not any(d['Book_id'] == '1' for d in currently_loaned_books):
-#     print("book not on loan")
-
-# book_to_check = input("Enter book Number : ")
-
-# state = check_book_loan_status(book_to_check, currently_loaned_books)
-
-# print("The book is available : ", state)
+def get_loaning_member(book, loaned_books_list):
+    # print(book)
+    # print("--")
+    for row in loaned_books_list:
+        if book == row["Book_id"]:
+            return row["Member_id"]
 
 
 class LibraryBook(object):
@@ -125,6 +121,11 @@ class LibraryBook(object):
         self._publisher = publisher
         self._available = check_book_loan_status(book_number,
                                                  currently_loaned_books)
+        if self._available is True:
+            self._loanee = None
+        else:
+            self._loanee = get_loaning_member(book_number,
+                                              currently_loaned_books)
 
     def printDetails(self):
         print("Details for Book Number"), self._book_number
@@ -135,6 +136,7 @@ class LibraryBook(object):
         print("--> Book Sub Genre   : ", self._sub_genre)
         print("--> Book Publisher   : ", self._publisher)
         print("--> Book Available?  : ", self._available)
+        print("--> Loaned To Member : ", self._loanee)
 
     def scan(self):
         return self._book_number
@@ -154,27 +156,38 @@ for line in book_data:
 # state (available to loan)
 for row in books:
     print(row.printDetails())
-    
+
 
 def do_loan(lendee, book):
     pass
 
+
+# not right
 def validate_member(member):
-    pass
+    if not any(d['Book_id'] == book for d in loaned_books_list):
+        return True  # book is available
+    else:
+        return False  # book is already on loan
+
 
 def validate_book(book):
     pass
 
+
 def do_return(book):
     pass
+
 
 def do_reserve_book(book, member):
     # will need to check the book is not available before proceeding
     pass
 
+
 def do_apply():
     pass
+
 
 def do_startup_check():
     # if the json files are present then no need to regenerate them
     # just load the data
+    pass
