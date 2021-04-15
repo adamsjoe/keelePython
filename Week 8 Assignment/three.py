@@ -150,6 +150,31 @@ for line in book_data:
                         line["SubGenre"],
                         line["Publisher"]
                         ))
-
+# we now have a list of objects for the books.  Each book has a
+# state (available to loan)
 for row in books:
     print(row.printDetails())
+    
+
+def do_loan(lendee, book):
+    pass
+
+def validate_member(member):
+    pass
+
+def validate_book(book):
+    pass
+
+def do_return(book):
+    pass
+
+def do_reserve_book(book, member):
+    # will need to check the book is not available before proceeding
+    pass
+
+def do_apply():
+    pass
+
+def do_startup_check():
+    # if the json files are present then no need to regenerate them
+    # just load the data
