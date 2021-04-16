@@ -1,7 +1,9 @@
 import csv
 import json
 import sys
+import datetime
 
+# Constant filenames
 BOOKLOANSFILE_CSV = 'bookloans.csv'
 BOOKSFILE_CSV = 'books.csv'
 MEMBERSFILE_CSV = 'members.csv'
@@ -11,6 +13,7 @@ BOOKSFILE_JSON = 'books.json'
 MEMBERSFILE_JSON = 'members.json'
 CURRENT_BOOKLOANSFILE_JSON = 'books_on_loan.json'
 
+# Constant headers
 LOAN_HEADERS = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
 
 
@@ -46,6 +49,7 @@ create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
 # create a "library" :
 # this will, for each book, determing if it's "loaned" or not
 # first let#s get the json files
+# ------> these can be functioned <------
 with open('books.json') as booksfile:
     book_data = json.load(booksfile)
 
@@ -139,10 +143,6 @@ def do_return(book):
 
 def do_reserve_book(book, member):
     # will need to check the book is not available before proceeding
-    pass
-
-
-def do_apply():
     pass
 
 
@@ -258,11 +258,28 @@ for line in members_data:
 #     print(row.printDetails())
 
 
-def append_to_json(file, data):
+def replace_json_file(file, data):
     with open(file, 'w', encoding='utf-8') as json_file:
         jsonString = json.dumps(data, indent=4)
         # jsonString = json.dump(data, json_file)
         json_file.write(jsonString)
+
+
+def get_current_days_excel_epoch():
+    """Calculates the number of days since 1-1-1900 (the Excel Epoch)
+
+    Keyword arguements:
+            none
+
+    Returns:
+        delta.days = a integer value representing number of days since
+        1-1-1900
+    """
+    f_date = datetime.date(1900, 1, 1)
+    l_date = datetime.datetime.today().date()
+
+    delta = l_date - f_date
+    return delta.days
 
 
 def do_loan():
@@ -283,13 +300,43 @@ def do_loan():
     data = {}
     data["Book_id"] = real_book.scan()
     data["Member_id"] = real_member.scan()
-    data["Date_loaned"] = "today"
+    data["Date_loaned"] = str(get_current_days_excel_epoch())
     data["Date_returned"] = "0"
     jdata.append(data)
 
     # then save this
-    append_to_json(CURRENT_BOOKLOANSFILE_JSON, jdata)
+    replace_json_file(CURRENT_BOOKLOANSFILE_JSON, jdata)
+
+    # once this is done we should reload the json - this way we have the right
+    # data available
 
 
+def do_apply():
+    new_f_name = input("Please enter first name    : ")
+    new_l_name = input("Please enter last name     : ")
+    new_gender = input("Please enter gender        : ")
+    new_email = input("Please enter email address : ")
+
+    # we need to check that this person does not exist
+
+    # then we need to add him to the users list
+
+    members.append(LibraryMember(
+                            "num",
+                            new_f_name,
+                            new_l_name,
+                            new_gender,
+                            new_email,
+                            "0"
+                            ))
+
+    for row in members:
+        print(row.printDetails())
+
+    # not right yet
+    # replace_json_file(MEMBERSFILE_JSON, members)
 # do_loan()
 # print(currently_loaned_books)
+
+
+do_apply()
