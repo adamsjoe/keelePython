@@ -50,14 +50,18 @@ create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
 # this will, for each book, determing if it's "loaned" or not
 # first let#s get the json files
 # ------> these can be functioned <------
-with open('books.json') as booksfile:
-    book_data = json.load(booksfile)
 
-with open('bookloans.json') as bookloansfile:
-    loans_data = json.load(bookloansfile)
 
-with open('members.json') as membersfile:
-    members_data = json.load(membersfile)
+def open_json_file(file):
+    with open(file) as data:
+        return_data = json.load(data)
+
+    return return_data
+
+
+book_data = open_json_file('books.json')
+loans_data = open_json_file('bookloans.json')
+members_data = open_json_file('members.json')
 
 # some placeholders
 jdata = []
