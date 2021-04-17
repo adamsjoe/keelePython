@@ -73,7 +73,8 @@ class Member(object):
             self._card_issue_no = card_no[-1]
         else:
             self._card_issue_no = "None issued"
-        self._no_of_loaned_items = 0
+        self._no_of_loaned_items = get_loaned_items_cnt(id_no,
+                                                        currently_loaned_books)
 
     def printDetails(self):
         print("--> Member ID number   : ", self._id_no)
@@ -127,6 +128,69 @@ def open_json_file(file):
     return return_data
 
 
+def replace_json_file(file, data):
+    with open(file, 'w', encoding='utf-8') as json_file:
+        jsonString = json.dumps(data, indent=4)
+        # jsonString = json.dump(data, json_file)
+        json_file.write(jsonString)
+
+
+def get_current_days_excel_epoch():
+    """Calculates the number of days since 1-1-1900 (the Excel Epoch)
+
+    Keyword arguements:
+            none
+
+    Returns:
+        delta.days = a integer value representing number of days since
+        1-1-1900
+    """
+    f_date = datetime.date(1900, 1, 1)
+    l_date = datetime.datetime.today().date()
+
+    delta = l_date - f_date
+    return delta.days
+
+
+def check_book_loan_status(book, loaned_books_list):
+    if not any(d['Book_id'] == book for d in loaned_books_list):
+        return True  # book is available
+    else:
+        return False  # book is already on loan
+
+
+def get_loaned_items_cnt(member, loaned_books_list):
+    count = 0
+    for row in loaned_books_list:
+        if member == row["Member_id"]:
+            count += 1
+    return count
+
+
+def get_loaning_member(book, loaned_books_list):
+    # print(book)
+    # print("--")
+    for row in loaned_books_list:
+        if book == row["Book_id"]:
+            return row["Member_id"]
+
+
+def validate_member(member_card, memberlist):
+    for row in memberlist:
+        if member_card == row.scan():
+            return row  # member exists - return obj
+        else:
+            return False  # member is a lie
+
+
+def validate_book(book, bookslist):
+    for row in bookslist:
+        if book == row.scan():
+            return row  # book exists
+        else:
+            return False  # book is a lie
+
+
 # create json files from the CSV files
 create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
 create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
@@ -175,60 +239,6 @@ with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
     currently_loaned_books = json.load(current_loans)
 
 
-def check_book_loan_status(book, loaned_books_list):
-    if not any(d['Book_id'] == book for d in loaned_books_list):
-        return True  # book is available
-    else:
-        return False  # book is already on loan
-
-
-def get_loaned_items_cnt(member, loaned_books_list):
-    count = 0
-    for row in loaned_books_list:
-        if member == row["Member_id"]:
-            count += 1
-    return count
-
-
-def get_loaning_member(book, loaned_books_list):
-    # print(book)
-    # print("--")
-    for row in loaned_books_list:
-        if book == row["Book_id"]:
-            return row["Member_id"]
-
-
-def validate_member(member_card, memberlist):
-    for row in memberlist:
-        if member_card == row.scan():
-            return row  # member exists - return obj
-        else:
-            return False  # member is a lie
-
-
-def validate_book(book, bookslist):
-    for row in bookslist:
-        if book == row.scan():
-            return row  # book exists
-        else:
-            return False  # book is a lie
-
-
-def do_return(book):
-    pass
-
-
-def do_reserve_book(book, member):
-    # will need to check the book is not available before proceeding
-    pass
-
-
-def do_startup_check():
-    # if the json files are present then no need to regenerate them
-    # just load the data
-    pass
-
-
 # now to create a list of objects of type LibraryBook
 books = []
 for line in book_data:
@@ -253,100 +263,8 @@ for line in members_data:
                             ))
 
 
-# # we now have a list of objects for the books.  Each book has a
-# # state (available to loan)
-# for row in books:
-#     print(row.printDetails())
+for row in members:
+    print(row.printDetails())
 
-# for row in members:
-#     print(row.printDetails())
+#  TASK 1 CODE:
 
-
-def replace_json_file(file, data):
-    with open(file, 'w', encoding='utf-8') as json_file:
-        jsonString = json.dumps(data, indent=4)
-        # jsonString = json.dump(data, json_file)
-        json_file.write(jsonString)
-
-
-def get_current_days_excel_epoch():
-    """Calculates the number of days since 1-1-1900 (the Excel Epoch)
-
-    Keyword arguements:
-            none
-
-    Returns:
-        delta.days = a integer value representing number of days since
-        1-1-1900
-    """
-    f_date = datetime.date(1900, 1, 1)
-    l_date = datetime.datetime.today().date()
-
-    delta = l_date - f_date
-    return delta.days
-
-
-def do_loan():
-    member = input("enter member card number : ")
-    real_member = validate_member(member, members)
-
-    book_to_take = input("enter book number : ")
-    real_book = validate_book(book_to_take, books)
-
-    # print book stats
-    real_book.printDetails()
-
-    real_book.assign_to_user(real_member.scan())
-
-    real_book.printDetails()
-
-    # works but uses global stuff
-    data = {}
-    data["Book_id"] = real_book.scan()
-    data["Member_id"] = real_member.scan()
-    data["Date_loaned"] = str(get_current_days_excel_epoch())
-    data["Date_returned"] = "0"
-    jdata.append(data)
-
-    # then save this
-    replace_json_file(CURRENT_BOOKLOANSFILE_JSON, jdata)
-
-    # once this is done we should reload the json - this way we have the right
-    # data available
-
-
-def do_apply():
-    new_f_name = input("Please enter first name    : ")
-    new_l_name = input("Please enter last name     : ")
-    new_gender = input("Please enter gender        : ")
-    new_email = input("Please enter email address : ")
-
-    # we need to check that this person does not exist
-
-    # then we need to add him to the users list
-
-    members.append(LibraryMember(
-                            None,
-                            new_f_name,
-                            new_l_name,
-                            new_gender,
-                            new_email,
-                            "0"
-                            ))
-
-    for row in members:
-        print(row.printDetails())
-
-    # not right yet
-    # replace_json_file(MEMBERSFILE_JSON, members)
-
-
-do_loan()
-print(currently_loaned_books)
-
-
-# do_apply()
-
-# for row in members:
-#     row.printDetails()
-#     print("")
