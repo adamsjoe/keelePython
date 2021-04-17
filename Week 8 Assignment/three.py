@@ -2,6 +2,9 @@ import csv
 import json
 import sys
 import datetime
+import os
+from pprint import pprint
+
 
 # Constant filenames
 BOOKLOANSFILE_CSV = 'bookloans.csv'
@@ -53,6 +56,9 @@ class LibraryBook(object):
         self._available = False
         self._loanee = member_id
 
+    def loan_book(self, member):
+        pass
+
 
 class Member(object):
 
@@ -98,27 +104,31 @@ class LibraryMember(Member):
 
 
 def create_json(file_in, file_out, headers=False):
-    # setup a variable to hold the data from the file
-    data = []
 
-    try:
-        with open(file_in, encoding='utf-8-sig', mode='r') as file:
-            if headers is False:
-                reader = csv.DictReader(file,)
-            else:
-                reader = csv.DictReader(file, fieldnames=headers)
-            for row in reader:
-                data.append(row)
+    if os.path.isfile(file_out):
+        print("{f} file exsists - no need to recreate\n".format(f=file_out))
+    else:
+        print("{f} file does not exsist - recreating file..".format(f=file_out))
+        # setup a variable to hold the data from the file
+        data = []
 
-        with open(file_out, 'w', encoding='utf-8') as json_file:
-            jsonString = json.dumps(data, indent=4)
-            # jsonString = json.dump(data, json_file)
-            json_file.write(jsonString)
+        try:
+            with open(file_in, encoding='utf-8-sig', mode='r') as file:
+                if headers is False:
+                    reader = csv.DictReader(file,)
+                else:
+                    reader = csv.DictReader(file, fieldnames=headers)
+                for row in reader:
+                    data.append(row)
 
-    # handle file not found errors with a nice error message
-    except FileNotFoundError:
-        print('File {} does not exist.'.format(file_in))
-        sys.exit(1)
+            with open(file_out, 'w', encoding='utf-8') as json_file:
+                jsonString = json.dumps(data, indent=4)            
+                json_file.write(jsonString)
+
+        # handle file not found errors with a nice error message
+        except FileNotFoundError:
+            print('File {} does not exist.'.format(file_in))
+            sys.exit(1)
 
 
 def open_json_file(file):
@@ -196,9 +206,9 @@ create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
 create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
 create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
 
-book_data = open_json_file('books.json')
-loans_data = open_json_file('bookloans.json')
-members_data = open_json_file('members.json')
+book_data = open_json_file(BOOKSFILE_JSON)
+loans_data = open_json_file(BOOKLOANSFILE_JSON)
+members_data = open_json_file(MEMBERSFILE_JSON)
 
 # some placeholders
 jdata = []
@@ -263,8 +273,31 @@ for line in members_data:
                             ))
 
 
-for row in members:
-    print(row.printDetails())
+# for row in members:
+#    print(row.printDetails())
+
+#pprint(members_data)
 
 #  TASK 1 CODE:
 
+def loan_book():
+    # get the membership card for the user
+    
+
+    # now validate this card is real
+    while True:
+        member_card = input("Please enter membership card number : ")
+        mem_result = validate_member(member_card, members)
+        if mem_result is not False:
+            mem_result.printDetails()
+            break
+    print()
+    while True:
+        book_number = input("Please enter book number : ")
+        book_result = validate_book(book_number, books)
+        if book_result is not False:
+            book_result.printDetails()
+            break
+
+
+loan_book()
