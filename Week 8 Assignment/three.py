@@ -17,6 +17,85 @@ CURRENT_BOOKLOANSFILE_JSON = 'books_on_loan.json'
 LOAN_HEADERS = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
 
 
+# Class definition for a library book
+class LibraryBook(object):
+    def __init__(self, book_number, author, title, genre, sub_genre,
+                 publisher):
+        self._book_number = book_number
+        self._author = author
+        self._title = title
+        self._genre = genre
+        self._sub_genre = sub_genre
+        self._publisher = publisher
+        self._available = check_book_loan_status(book_number,
+                                                 currently_loaned_books)
+        if self._available is True:
+            self._loanee = None
+        else:
+            self._loanee = get_loaning_member(book_number,
+                                              currently_loaned_books)
+
+    def printDetails(self):
+        print("Details for Book Number"), self._book_number
+        print("--> Book Number      : ", self._book_number)
+        print("--> Book Title       : ", self._title)
+        print("--> Book Author      : ", self._author)
+        print("--> Book Genre       : ", self._genre)
+        print("--> Book Sub Genre   : ", self._sub_genre)
+        print("--> Book Publisher   : ", self._publisher)
+        print("--> Book Available?  : ", self._available)
+        print("--> Loaned To Member : ", self._loanee)
+
+    def scan(self):
+        return self._book_number
+
+    def assign_to_user(self, member_id):
+        self._available = False
+        self._loanee = member_id
+
+
+class Member(object):
+
+    max_id_number = 0
+
+    def __init__(self, id_no, first_name, last_name, gender, email, card_no):
+        if id_no is None:
+            self._id_no = Member.max_id + 1
+        else:
+            self._id_no = int(id_no)    
+            Member.max_id = int(id_no)        
+        self._first_name = first_name
+        self._last_name = last_name
+        self._gender = gender
+        self._email = email
+        self._card_no = card_no
+        if self._card_no != "0":
+            self._card_issue_no = card_no[-1]
+        else:
+            self._card_issue_no = "None issued"
+        self._no_of_loaned_items = 0
+
+    def printDetails(self):
+        print("--> Member ID number   : ", self._id_no)
+        print("--> Member First Name  : ", self._first_name)
+        print("--> Member Last Name   : ", self._last_name)
+        print("--> Member Gender      : ", self._gender)
+        print("--> Member Email       : ", self._email)
+        print("--> Member Card No     : ", self._card_no)
+        print("--> Member Card Issue  : ", self._card_issue_no)
+        print("--> No of items loaned : ", self._no_of_loaned_items)
+
+    def assign_card_no(self, new_card_no):
+        self._card_no = new_card_no
+
+    def scan(self):
+        return self._card_no
+
+
+class LibraryMember(Member):
+    pass
+
+
 def create_json(file_in, file_out, headers=False):
     # setup a variable to hold the data from the file
     data = []
@@ -41,23 +120,17 @@ def create_json(file_in, file_out, headers=False):
         sys.exit(1)
 
 
-# create json files from the CSV files
-create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
-create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
-create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
-
-# create a "library" :
-# this will, for each book, determing if it's "loaned" or not
-# first let#s get the json files
-# ------> these can be functioned <------
-
-
 def open_json_file(file):
     with open(file) as data:
         return_data = json.load(data)
 
     return return_data
 
+
+# create json files from the CSV files
+create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
+create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
+create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
 
 book_data = open_json_file('books.json')
 loans_data = open_json_file('bookloans.json')
@@ -156,43 +229,6 @@ def do_startup_check():
     pass
 
 
-# Class definition for a library book
-class LibraryBook(object):
-    def __init__(self, book_number, author, title, genre, sub_genre,
-                 publisher):
-        self._book_number = book_number
-        self._author = author
-        self._title = title
-        self._genre = genre
-        self._sub_genre = sub_genre
-        self._publisher = publisher
-        self._available = check_book_loan_status(book_number,
-                                                 currently_loaned_books)
-        if self._available is True:
-            self._loanee = None
-        else:
-            self._loanee = get_loaning_member(book_number,
-                                              currently_loaned_books)
-
-    def printDetails(self):
-        print("Details for Book Number"), self._book_number
-        print("--> Book Number      : ", self._book_number)
-        print("--> Book Title       : ", self._title)
-        print("--> Book Author      : ", self._author)
-        print("--> Book Genre       : ", self._genre)
-        print("--> Book Sub Genre   : ", self._sub_genre)
-        print("--> Book Publisher   : ", self._publisher)
-        print("--> Book Available?  : ", self._available)
-        print("--> Loaned To Member : ", self._loanee)
-
-    def scan(self):
-        return self._book_number
-
-    def assign_to_user(self, member_id):
-        self._available = False
-        self._loanee = member_id
-
-
 # now to create a list of objects of type LibraryBook
 books = []
 for line in book_data:
@@ -204,42 +240,6 @@ for line in book_data:
                         line["SubGenre"],
                         line["Publisher"]
                         ))
-
-
-class LibraryMember(object):
-
-    max_id = 0
-
-    def __init__(self, id_no, first_name, last_name, gender, email, card_no):
-        self._id_no = id_no
-        self._first_name = first_name
-        self._last_name = last_name
-        self._gender = gender
-        self._email = email
-        self._card_no = card_no
-        if self._card_no != "0":
-            self._card_issue_no = card_no[-1]
-        else:
-            self._card_issue_no = "None issued"
-        self._no_of_loaned_items = get_loaned_items_cnt(id_no,
-                                                        currently_loaned_books)
-
-    def printDetails(self):
-        print("--> Member ID number   : ", self._id_no)
-        print("--> Member First Name  : ", self._first_name)
-        print("--> Member Last Name   : ", self._last_name)
-        print("--> Member Gender      : ", self._gender)
-        print("--> Member Email       : ", self._email)
-        print("--> Member Card No     : ", self._card_no)
-        print("--> Member Card Issue  : ", self._card_issue_no)
-        print("--> No of items loaned : ", self._no_of_loaned_items)
-
-    def assign_card_no(self, new_card_no):
-        self._card_no = new_card_no
-
-    def scan(self):
-        return self._card_no
-
 
 members = []
 for line in members_data:
@@ -326,7 +326,7 @@ def do_apply():
     # then we need to add him to the users list
 
     members.append(LibraryMember(
-                            "num",
+                            None,
                             new_f_name,
                             new_l_name,
                             new_gender,
@@ -339,8 +339,14 @@ def do_apply():
 
     # not right yet
     # replace_json_file(MEMBERSFILE_JSON, members)
-# do_loan()
-# print(currently_loaned_books)
 
 
-do_apply()
+do_loan()
+print(currently_loaned_books)
+
+
+# do_apply()
+
+# for row in members:
+#     row.printDetails()
+#     print("")
