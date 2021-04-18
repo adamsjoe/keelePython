@@ -51,12 +51,18 @@ class LibraryBook(object):
     def scan(self):
         return self._book_number
 
-    def assign_to_user(self, member_id):
+    def assign_to_user(self, member_id, book_data, member_data):
         self._available = False
         self._loanee = member_id
 
-    def loan_book(self, member):
-        pass
+        data = {}
+        data["Book_id"] = book_data.scan()
+        data["Member_id"] = member_data.scan()
+        data["Date_loaned"] = str(get_current_days_excel_epoch())
+        data["Date_returned"] = "0"
+        update_books_on_loan(CURRENT_BOOKLOANSFILE_JSON, data)
+        update_book_loans(BOOKLOANSFILE_JSON, data)
+        member_data.increase_loan_items()
 
 
 class Member(object):
@@ -96,6 +102,15 @@ class Member(object):
 
     def scan(self):
         return self._card_no
+
+    def increase_loan_items(self):
+        self._no_of_loaned_items += 1
+
+    def decrease_loan_items(self):
+        if self._no_of_loaned_items > 0:
+            self._no_of_loaned_items -= 1
+        else:
+            print("Error: no returns on record")
 
 
 class LibraryMember(Member):
@@ -247,14 +262,24 @@ def validate_book(book, bookslist):
 
 
 # make this pass in the file as a param
-def updateJsonTemp(data):
-    with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
+def update_books_on_loan(file_out, data):
+    with open(file_out) as current_loans:
         currently_loaned_books = json.load(current_loans)
 
         currently_loaned_books.append(data)
 
-    with open(CURRENT_BOOKLOANSFILE_JSON, "w") as file:
+    with open(file_out, "w") as file:
         json.dump(currently_loaned_books, file, indent=4)
+
+
+def update_book_loans(file_out, data):
+    with open(file_out) as current_loans:
+        loans_data = json.load(current_loans)
+
+        loans_data.append(data)
+
+    with open(file_out, "w") as file:
+        json.dump(loans_data, file, indent=4)
 
 
 # create json files from the CSV files
@@ -328,15 +353,17 @@ def loan_book():
         print("Cannot process - book already on loan")
         exit(0)
     else:
-        print("we can do this")
-        book_result.assign_to_user(mem_result._id_no)
+        print("Processing loan...")
+        book_result.assign_to_user(mem_result._id_no, book_result, mem_result)
         book_result.printDetails()
-        data = {}
-        data["Book_id"] = book_result.scan()
-        data["Member_id"] = mem_result.scan()
-        data["Date_loaned"] = str(get_current_days_excel_epoch())
-        data["Date_returned"] = "0"
-        updateJsonTemp(data)
+        # data = {}
+        # data["Book_id"] = book_result.scan()
+        # data["Member_id"] = mem_result.scan()
+        # data["Date_loaned"] = str(get_current_days_excel_epoch())
+        # data["Date_returned"] = "0"
+        # update_books_on_loan(BOOKLOANSFILE_JSON, data)
+        # update bookloans.json
+        # update number of items on loan for member
 
 
 loan_book()
