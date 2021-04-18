@@ -64,6 +64,22 @@ class LibraryBook(object):
         update_book_loans(BOOKLOANSFILE_JSON, data)
         member_data.increase_loan_items()
 
+    def return_item(self):
+        data = {}
+        loans_info = open_json_file(BOOKLOANSFILE_JSON)
+        for row in loans_info:
+            if row["Book_id"] == self._book_number and row["Date_returned"] == "0":
+                print(row)
+                data["Book_id"] = row["Book_id"]
+                data["Member_id"] = row["Member_id"]
+                data["Date_loaned"] = row["Date_loaned"]
+                data["Date_returned"] = str(get_current_days_excel_epoch())
+
+                # doing this at the end - not in place
+                # print(data)
+                update_json(BOOKLOANSFILE_JSON, data)
+                # still need to do the user details decrease
+
 
 class Member(object):
 
@@ -282,6 +298,14 @@ def update_book_loans(file_out, data):
         json.dump(loans_data, file, indent=4)
 
 
+def update_json(file_out, data):
+    # with open(file_out, "r") as file:
+    #     info = json.load(file)
+    #     file.write(json.dumps(data))
+    #     file.truncate()
+    print(data)
+
+
 # create json files from the CSV files
 create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
 create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
@@ -302,8 +326,8 @@ books = []
 for line in book_data:
     books.append(LibraryBook(
                         line["Number"],
-                        line["Title"],
                         line["Author"],
+                        line["Title"],
                         line["Genre"],
                         line["SubGenre"],
                         line["Publisher"]
@@ -335,7 +359,8 @@ def loan_book():
         if mem_result is not False:
             mem_result.printDetails()
             break
-
+        else:
+            print("{} is not recognised. Try again".format(mem_result))
     print()
 
     # now validate the book is real
@@ -345,6 +370,8 @@ def loan_book():
         if book_result is not False:
             book_result.printDetails()
             break
+        else:
+            print("{} is not recognised. Try again".format(book_number))
 
     print()
 
@@ -356,20 +383,34 @@ def loan_book():
         print("Processing loan...")
         book_result.assign_to_user(mem_result._id_no, book_result, mem_result)
         book_result.printDetails()
-        # data = {}
-        # data["Book_id"] = book_result.scan()
-        # data["Member_id"] = mem_result.scan()
-        # data["Date_loaned"] = str(get_current_days_excel_epoch())
-        # data["Date_returned"] = "0"
-        # update_books_on_loan(BOOKLOANSFILE_JSON, data)
-        # update bookloans.json
-        # update number of items on loan for member
 
-
-loan_book()
+# loan_book()
 
 # TASK 2 CODE:
 
+def return_book():
+    # to return a book, the librarian would just scan the barcode.
+    while True:
+        book_number = input("Please enter book number : ")
+        book_result = validate_book(book_number, books)
+        if book_result is not False:
+            book_result.printDetails()
+            break
+        else:
+            print("{} is not recognised. Try again".format(book_number))
+
+    # check that this book is actually on loan
+    if book_result._available is True:
+        # we cannot return what is not issued
+        print("'{}' is not issued.".format(book_result._title))
+        print("Unable to process a return.")
+        exit(0)
+    else:
+        book_result.return_item()
+        # find the element in the JSON file
+
+
+return_book()
 # TASK 3 CODE:
 
 # TASK 4 CODE:
