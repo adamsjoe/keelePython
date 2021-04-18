@@ -246,6 +246,17 @@ def validate_book(book, bookslist):
     return data
 
 
+# make this pass in the file as a param
+def updateJsonTemp(data):
+    with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
+        currently_loaned_books = json.load(current_loans)
+
+        currently_loaned_books.append(data)
+
+    with open(CURRENT_BOOKLOANSFILE_JSON, "w") as file:
+        json.dump(currently_loaned_books, file, indent=4)
+
+
 # create json files from the CSV files
 create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
 create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
@@ -288,18 +299,6 @@ for line in members_data:
 #    print(row.printDetails())
 
 #  TASK 1 CODE:
-
-# make this pass in the file as a param
-def updateJsonTemp(data):
-    with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
-        currently_loaned_books = json.load(current_loans)
-
-        currently_loaned_books.append(data)
-
-    with open(CURRENT_BOOKLOANSFILE_JSON, "w") as file:
-        json.dump(currently_loaned_books, file, indent=4)
-
-
 def loan_book():
     # get the membership card for the user
 
@@ -341,3 +340,11 @@ def loan_book():
 
 
 loan_book()
+
+# TASK 2 CODE:
+
+# TASK 3 CODE:
+
+# TASK 4 CODE:
+
+# TASK 5 CODE:
