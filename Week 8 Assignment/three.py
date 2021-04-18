@@ -143,38 +143,38 @@ def generate_books_on_loan_file(file_out, book_data, loans_data):
         print(
             "{f} file does not exsist - recreating file..".format(f=file_out)
             )
-    jdata = []
-    # parse through the books and then find out if the book is loaned or now
-    # doing it this way eliminates books we don't have in the books file (not
-    # asked for, but mention in writeup)
-    for row in book_data:
-        # parse the books and get the number
-        book_id = row['Number']
+        jdata = []
+        # parse through the books and then find out if the book is
+        # loaned or now doing it this way eliminates books we don't
+        # have in the books file (not asked for, but mention in writeup)
+        for row in book_data:
+            # parse the books and get the number
+            book_id = row['Number']
 
-        book_loaned = False
-        # now parse the book loans to find the state
-        for loan_row in loans_data:
-            if loan_row['Book_id'] == book_id:
-                # print("Working on book id ", book_id)
+            book_loaned = False
+            # now parse the book loans to find the state
+            for loan_row in loans_data:
+                if loan_row['Book_id'] == book_id:
+                    # print("Working on book id ", book_id)
 
-                if loan_row['Date_returned'] != '0':
-                    # print("book is returned")
-                    book_loaned = False
-                else:
-                    # print('book is on loan')
-                    book_loaned = True
+                    if loan_row['Date_returned'] != '0':
+                        # print("book is returned")
+                        book_loaned = False
+                    else:
+                        # print('book is on loan')
+                        book_loaned = True
 
-                if book_loaned is True:
-                    data = {}
-                    data["Book_id"] = loan_row["Book_id"]
-                    data["Member_id"] = loan_row["Member_id"]
-                    data["Date_loaned"] = loan_row["Date_loaned"]
-                    data["Date_returned"] = loan_row["Date_returned"]
-                    jdata.append(data)
+                    if book_loaned is True:
+                        data = {}
+                        data["Book_id"] = loan_row["Book_id"]
+                        data["Member_id"] = loan_row["Member_id"]
+                        data["Date_loaned"] = loan_row["Date_loaned"]
+                        data["Date_returned"] = loan_row["Date_returned"]
+                        jdata.append(data)
 
-    with open(file_out, 'w', encoding='utf-8') as filely:
-        meh = json.dumps(jdata, indent=4)
-        filely.write(meh)
+        with open(file_out, 'w', encoding='utf-8') as filely:
+            meh = json.dumps(jdata, indent=4)
+            filely.write(meh)
 
 
 def open_json_file(file):
@@ -268,6 +268,7 @@ members_data = open_json_file(MEMBERSFILE_JSON)
 
 generate_books_on_loan_file(CURRENT_BOOKLOANSFILE_JSON, book_data, loans_data)
 
+# this is never reloaded?
 with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
     currently_loaned_books = json.load(current_loans)
 
@@ -324,8 +325,7 @@ def loan_book():
 
     # check if book is able to be loaned
     if book_result._available is False:
-        print("book already on loan")
-        print(book_result.printDetails())
+        print("Cannot process - book already on loan")
         exit(0)
     else:
         print("we can do this")
