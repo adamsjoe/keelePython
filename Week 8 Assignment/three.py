@@ -3,7 +3,6 @@ import json
 import sys
 import datetime
 import os
-from pprint import pprint
 
 
 # Constant filenames
@@ -68,8 +67,8 @@ class Member(object):
         if id_no is None:
             self._id_no = Member.max_id + 1
         else:
-            self._id_no = int(id_no)    
-            Member.max_id = int(id_no)        
+            self._id_no = int(id_no)
+            Member.max_id = int(id_no)
         self._first_name = first_name
         self._last_name = last_name
         self._gender = gender
@@ -108,7 +107,9 @@ def create_json(file_in, file_out, headers=False):
     if os.path.isfile(file_out):
         print("{f} file exsists - no need to recreate\n".format(f=file_out))
     else:
-        print("{f} file does not exsist - recreating file..".format(f=file_out))
+        print(
+            "{f} file does not exsist - recreating file..".format(f=file_out)
+            )
         # setup a variable to hold the data from the file
         data = []
 
@@ -122,7 +123,7 @@ def create_json(file_in, file_out, headers=False):
                     data.append(row)
 
             with open(file_out, 'w', encoding='utf-8') as json_file:
-                jsonString = json.dumps(data, indent=4)            
+                jsonString = json.dumps(data, indent=4)
                 json_file.write(jsonString)
 
         # handle file not found errors with a nice error message
@@ -131,18 +132,56 @@ def create_json(file_in, file_out, headers=False):
             sys.exit(1)
 
 
+# create a "books on loan" json file
+def generate_books_on_loan_file(file_out, book_data, loans_data):
+
+    if os.path.isfile(file_out):
+        print(
+            "{f} file exsists - no need to recreate\n".format(f=file_out)
+            )
+    else:
+        print(
+            "{f} file does not exsist - recreating file..".format(f=file_out)
+            )
+    jdata = []
+    # parse through the books and then find out if the book is loaned or now
+    # doing it this way eliminates books we don't have in the books file (not
+    # asked for, but mention in writeup)
+    for row in book_data:
+        # parse the books and get the number
+        book_id = row['Number']
+
+        book_loaned = False
+        # now parse the book loans to find the state
+        for loan_row in loans_data:
+            if loan_row['Book_id'] == book_id:
+                # print("Working on book id ", book_id)
+
+                if loan_row['Date_returned'] != '0':
+                    # print("book is returned")
+                    book_loaned = False
+                else:
+                    # print('book is on loan')
+                    book_loaned = True
+
+                if book_loaned is True:
+                    data = {}
+                    data["Book_id"] = loan_row["Book_id"]
+                    data["Member_id"] = loan_row["Member_id"]
+                    data["Date_loaned"] = loan_row["Date_loaned"]
+                    data["Date_returned"] = loan_row["Date_returned"]
+                    jdata.append(data)
+
+    with open(file_out, 'w', encoding='utf-8') as filely:
+        meh = json.dumps(jdata, indent=4)
+        filely.write(meh)
+
+
 def open_json_file(file):
     with open(file) as data:
         return_data = json.load(data)
 
     return return_data
-
-
-def replace_json_file(file, data):
-    with open(file, 'w', encoding='utf-8') as json_file:
-        jsonString = json.dumps(data, indent=4)
-        # jsonString = json.dump(data, json_file)
-        json_file.write(jsonString)
 
 
 def get_current_days_excel_epoch():
@@ -187,18 +226,24 @@ def get_loaning_member(book, loaned_books_list):
 
 def validate_member(member_card, memberlist):
     for row in memberlist:
+        data = None
         if member_card == row.scan():
-            return row  # member exists - return obj
+            data = row  # member exists - return obj
+            break
         else:
-            return False  # member is a lie
+            data = False  # member is a lie
+    return data
 
 
 def validate_book(book, bookslist):
+    data = None
     for row in bookslist:
         if book == row.scan():
-            return row  # book exists
+            data = row  # book exists
+            break
         else:
-            return False  # book is a lie
+            data = False  # book is a lie
+    return data
 
 
 # create json files from the CSV files
@@ -210,44 +255,10 @@ book_data = open_json_file(BOOKSFILE_JSON)
 loans_data = open_json_file(BOOKLOANSFILE_JSON)
 members_data = open_json_file(MEMBERSFILE_JSON)
 
-# some placeholders
-jdata = []
-# parse through the books and then find out if the book is loaned or now
-# doing it this way eliminates books we don't have in the books file (not asked
-# for, but mention in writeup)
-for row in book_data:
-    # parse the books and get the number
-    book_id = row['Number']
-
-    book_loaned = False
-    # now parse the book loans to find the state
-    for loan_row in loans_data:
-        if loan_row['Book_id'] == book_id:
-            # print("Working on book id ", book_id)
-
-            if loan_row['Date_returned'] != '0':
-                # print("book is returned")
-                book_loaned = False
-            else:
-                # print('book is on loan')
-                book_loaned = True
-
-            if book_loaned is True:
-                data = {}
-                data["Book_id"] = loan_row["Book_id"]
-                data["Member_id"] = loan_row["Member_id"]
-                data["Date_loaned"] = loan_row["Date_loaned"]
-                data["Date_returned"] = loan_row["Date_returned"]
-                jdata.append(data)
-
-
-with open(CURRENT_BOOKLOANSFILE_JSON, 'w', encoding='utf-8') as filely:
-    meh = json.dumps(jdata, indent=4)
-    filely.write(meh)
+generate_books_on_loan_file(CURRENT_BOOKLOANSFILE_JSON, book_data, loans_data)
 
 with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
     currently_loaned_books = json.load(current_loans)
-
 
 # now to create a list of objects of type LibraryBook
 books = []
@@ -276,13 +287,21 @@ for line in members_data:
 # for row in members:
 #    print(row.printDetails())
 
-#pprint(members_data)
-
 #  TASK 1 CODE:
+
+# make this pass in the file as a param
+def updateJsonTemp(data):
+    with open(CURRENT_BOOKLOANSFILE_JSON) as current_loans:
+        currently_loaned_books = json.load(current_loans)
+
+        currently_loaned_books.append(data)
+
+    with open(CURRENT_BOOKLOANSFILE_JSON, "w") as file:
+        json.dump(currently_loaned_books, file, indent=4)
+
 
 def loan_book():
     # get the membership card for the user
-    
 
     # now validate this card is real
     while True:
@@ -291,13 +310,34 @@ def loan_book():
         if mem_result is not False:
             mem_result.printDetails()
             break
+
     print()
+
+    # now validate the book is real
     while True:
         book_number = input("Please enter book number : ")
         book_result = validate_book(book_number, books)
         if book_result is not False:
             book_result.printDetails()
             break
+
+    print()
+
+    # check if book is able to be loaned
+    if book_result._available is False:
+        print("book already on loan")
+        print(book_result.printDetails())
+        exit(0)
+    else:
+        print("we can do this")
+        book_result.assign_to_user(mem_result._id_no)
+        book_result.printDetails()
+        data = {}
+        data["Book_id"] = book_result.scan()
+        data["Member_id"] = mem_result.scan()
+        data["Date_loaned"] = str(get_current_days_excel_epoch())
+        data["Date_returned"] = "0"
+        updateJsonTemp(data)
 
 
 loan_book()
