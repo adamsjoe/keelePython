@@ -21,6 +21,26 @@ LOAN_HEADERS = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
 
 # Class definition for a library book
 class LibraryBook(object):
+    """This object will be used to represent a library book. 
+
+    The constructor for this object takes in the values which are present in the
+    CSV file for the books.  However to this 3 additional attributes are added.
+
+    Methods
+    -------
+    printDetails(self)
+        Prints the attributes for the current object
+
+    scan(self)
+        Returns the book number
+
+    assign_to_user(self, member_id, book_data, member_data)
+        Performs a "loan" operation for the given book to the given user
+
+    return_item(self)
+        Returns a book on loan and makes it available for another user
+
+    """
     def __init__(self, book_number, author, title, genre, sub_genre,
                  publisher):
         self._book_number = book_number
