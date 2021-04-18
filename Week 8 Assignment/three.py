@@ -68,7 +68,8 @@ class LibraryBook(object):
         data = {}
         loans_info = open_json_file(BOOKLOANSFILE_JSON)
         for row in loans_info:
-            if row["Book_id"] == self._book_number and row["Date_returned"] == "0":
+            if row["Book_id"] == self._book_number and \
+               row["Date_returned"] == "0":
                 print(row)
                 data["Book_id"] = row["Book_id"]
                 data["Member_id"] = row["Member_id"]
@@ -127,6 +128,9 @@ class Member(object):
             self._no_of_loaned_items -= 1
         else:
             print("Error: no returns on record")
+
+    def apply(self):
+        pass
 
 
 class LibraryMember(Member):
@@ -298,6 +302,16 @@ def update_book_loans(file_out, data):
         json.dump(loans_data, file, indent=4)
 
 
+def update_members(file_out, data):
+    with open(file_out) as members_now:
+        mem_data = json.load(members_now)
+
+        mem_data.append(data)
+
+    with open(file_out, "w") as file:
+        json.dump(mem_data, file, indent=4)
+
+
 def update_json(file_out, data):
     # with open(file_out, "r") as file:
     #     info = json.load(file)
@@ -348,7 +362,7 @@ for line in members_data:
 # for row in members:
 #    print(row.printDetails())
 
-#  TASK 1 CODE:
+#  TASK 1 CODE: loan a book
 def loan_book():
     # get the membership card for the user
 
@@ -386,7 +400,8 @@ def loan_book():
 
 # loan_book()
 
-# TASK 2 CODE:
+# TASK 2 CODE: return a book
+
 
 def return_book():
     # to return a book, the librarian would just scan the barcode.
@@ -410,9 +425,58 @@ def return_book():
         # find the element in the JSON file
 
 
-return_book()
-# TASK 3 CODE:
+# return_book()
+# TASK 3 CODE: apply for membership
+def do_apply():
+    new_f_name = input("Please enter first name    : ")
+    new_l_name = input("Please enter last name     : ")
+    new_gender = input("Please enter gender        : ")
+    new_email = input("Please enter email address : ")
 
-# TASK 4 CODE:
+    # we need to check that this person does not exist
+    for row in members:
+        if row._first_name.lower() == new_f_name.lower() and \
+            row._last_name.lower() == new_l_name.lower() and \
+            row._gender.lower() == new_gender.lower() and \
+                row._email == new_email:
+            print("Member already exists.  Cannot apply again.")
+            sys.exit(0)
 
-# TASK 5 CODE:
+    # then we need to add him to the users list
+    # ensure that the text is all nice and uniform
+    new_f_name = new_f_name.title()
+    new_l_name = new_l_name.title()
+    new_gender = new_gender.title()
+    new_email = new_email.lower()
+
+    # create a new LibraryMember objct
+    members.append(LibraryMember(
+                            None,
+                            new_f_name,
+                            new_l_name,
+                            new_gender,
+                            new_email,
+                            "0"
+                            ))
+
+    data = {}
+    for row in members:
+        if row._first_name.lower() == new_f_name.lower() and \
+            row._last_name.lower() == new_l_name.lower() and \
+            row._gender.lower() == new_gender.lower() and \
+                row._email == new_email:
+            data["ID"] = str(row._id_no)
+            data["First Name"] = row._first_name
+            data["Last Name"] = row._last_name
+            data["Gender"] = row._gender
+            data["Email"] = row._email
+            data["CardNumber"] = "0"
+
+    update_members(MEMBERSFILE_JSON, data)
+
+
+do_apply()
+
+# TASK 4 CODE: reserve a book
+
+# TASK 5 CODE: notification system
