@@ -164,6 +164,7 @@ class Member(object):
         print("--> Member Card No     : ", self._card_no)
         print("--> Member Card Issue  : ", self._card_issue_no)
         print("--> No of items loaned : ", self._no_of_loaned_items)
+        # TODO Add in a count of reserved items?
 
     def assign_card_no(self, new_card_no):
         self._card_no = new_card_no
@@ -196,8 +197,13 @@ def create_reservations_json(file_out, data=""):
             "{f} file does not exsist - recreating file..\n".format(f=file_out)
             )
         with open(file_out, 'w', encoding='utf-8') as json_file:
+            jdata = []
             data = {}
-            jsonString = json.dumps(data, indent=4)
+            # data["Book_id"] = "1"
+            # data["Member_id"] = "1"
+            # data["Reserved_Date"] = "1"
+            # jdata.append(data)
+            jsonString = json.dumps(jdata, indent=4)
             json_file.write(jsonString)
 
 
@@ -307,6 +313,7 @@ def check_book_loan_status(book, loaned_books_list):
         return False  # book is already on loan
 
 
+# could this be added to the library member class?
 def get_loaned_items_cnt(member, loaned_books_list):
     count = 0
     for row in loaned_books_list:
@@ -315,9 +322,8 @@ def get_loaned_items_cnt(member, loaned_books_list):
     return count
 
 
+# could this be added to the book class?
 def get_loaning_member(book, loaned_books_list):
-    # print(book)
-    # print("--")
     for row in loaned_books_list:
         if book == row["Book_id"]:
             return row["Member_id"]
@@ -359,7 +365,6 @@ def update_books_on_loan(file_out, data):
 def update_book_loans(file_out, data):
     with open(file_out) as current_loans:
         loans_data = json.load(current_loans)
-
         loans_data.append(data)
 
     with open(file_out, "w") as file:
@@ -369,7 +374,6 @@ def update_book_loans(file_out, data):
 def update_members(file_out, data):
     with open(file_out) as members_now:
         mem_data = json.load(members_now)
-
         mem_data.append(data)
 
     with open(file_out, "w") as file:
@@ -391,10 +395,13 @@ create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
 create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
 create_reservations_json(RESERVATIONSFILE_JSON)
 
+# now open the JSON files
 book_data = open_json_file(BOOKSFILE_JSON)
 loans_data = open_json_file(BOOKLOANSFILE_JSON)
 members_data = open_json_file(MEMBERSFILE_JSON)
+reservvations_data = open_json_file(RESERVATIONSFILE_JSON)
 
+# generate "books on loan" - an extra file
 generate_books_on_loan_file(CURRENT_BOOKLOANSFILE_JSON, book_data, loans_data)
 
 # this is never reloaded?
@@ -459,6 +466,7 @@ def loan_book():
         print("Processing loan...")
         book_result.assign_to_user(mem_result._id_no, book_result, mem_result)
         book_result.printDetails()
+
 
 # loan_book()
 
@@ -570,8 +578,8 @@ def do_reserve():
         else:
             print("{} is not recognised. Try again".format(member_card))
 
-    data["Book_id"] = book_result._book_number
-    data["Member_id"] = mem_result._id_no
+    data["Book_id"] = str(book_result._book_number)
+    data["Member_id"] = str(mem_result._id_no)
     data["Reserved_Date"] = str(get_current_days_excel_epoch())
 
     # print(data)
