@@ -14,6 +14,8 @@ BOOKLOANSFILE_JSON = 'bookloans.json'
 BOOKSFILE_JSON = 'books.json'
 MEMBERSFILE_JSON = 'members.json'
 CURRENT_BOOKLOANSFILE_JSON = 'books_on_loan.json'
+RESERVATIONSFILE_JSON = 'reservations.json'
+
 
 # Constant headers
 LOAN_HEADERS = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
@@ -21,10 +23,14 @@ LOAN_HEADERS = ['Book_id', 'Member_id', 'Date_loaned', 'Date_returned']
 
 # Class definition for a library book
 class LibraryBook(object):
-    """This object will be used to represent a library book. 
+    """This object will be used to represent a library book.
 
-    The constructor for this object takes in the values which are present in the
-    CSV file for the books.  However to this 3 additional attributes are added.
+    The constructor for this object takes in the values which
+    are present in the CSV file for the books.  However to
+    this 2 additional attributes are added.
+    These additional attributes are:
+    - if the book is available
+    - If the book *is not* available the memeber who has it
 
     Methods
     -------
@@ -56,7 +62,12 @@ class LibraryBook(object):
         else:
             self._loanee = get_loaning_member(book_number,
                                               currently_loaned_books)
+    """Prints out the data for the object passed in
 
+    Arguments
+    ---------
+    self
+    """
     def printDetails(self):
         print("Details for Book Number"), self._book_number
         print("--> Book Number      : ", self._book_number)
@@ -71,17 +82,37 @@ class LibraryBook(object):
     def scan(self):
         return self._book_number
 
+    """Assigns a book to a user
+
+    Arguments
+    ---------
+    memeber_id
+        the user who will loan the book
+    book_data
+        the book object for the book to be loaned
+    member_data
+        the object for the member
+    """
     def assign_to_user(self, member_id, book_data, member_data):
         self._available = False
         self._loanee = member_id
 
+        # create a new dictionary
         data = {}
         data["Book_id"] = book_data.scan()
         data["Member_id"] = member_data.scan()
         data["Date_loaned"] = str(get_current_days_excel_epoch())
         data["Date_returned"] = "0"
+        # update the books on loan json file
         update_books_on_loan(CURRENT_BOOKLOANSFILE_JSON, data)
+
+        # update the bookloans.json file
         update_book_loans(BOOKLOANSFILE_JSON, data)
+
+        # one of the design discussions raised the possibility
+        # that a member could only borrow 5 items at a time,
+        # this was not asked for, but it was something
+        # easy to code for later
         member_data.increase_loan_items()
 
     def return_item(self):
@@ -155,6 +186,19 @@ class Member(object):
 
 class LibraryMember(Member):
     pass
+
+
+def create_reservations_json(file_out, data=""):
+    if os.path.isfile(file_out):
+        print("{f} file exsists - no need to recreate\n".format(f=file_out))
+    else:
+        print(
+            "{f} file does not exsist - recreating file..\n".format(f=file_out)
+            )
+        with open(file_out, 'w', encoding='utf-8') as json_file:
+            data = {}
+            jsonString = json.dumps(data, indent=4)
+            json_file.write(jsonString)
 
 
 def create_json(file_in, file_out, headers=False):
@@ -333,17 +377,19 @@ def update_members(file_out, data):
 
 
 def update_json(file_out, data):
-    # with open(file_out, "r") as file:
-    #     info = json.load(file)
-    #     file.write(json.dumps(data))
-    #     file.truncate()
-    print(data)
+    with open(file_out) as file:
+        file_data = json.load(file)
+        file_data.append(data)
+
+    with open(file_out, "w") as file:
+        json.dump(file_data, file, indent=4)
 
 
 # create json files from the CSV files
 create_json(MEMBERSFILE_CSV, MEMBERSFILE_JSON)
 create_json(BOOKSFILE_CSV, BOOKSFILE_JSON)
 create_json(BOOKLOANSFILE_CSV, BOOKLOANSFILE_JSON, LOAN_HEADERS)
+create_reservations_json(RESERVATIONSFILE_JSON)
 
 book_data = open_json_file(BOOKSFILE_JSON)
 loans_data = open_json_file(BOOKLOANSFILE_JSON)
@@ -379,13 +425,9 @@ for line in members_data:
                             ))
 
 
-# for row in members:
-#    print(row.printDetails())
-
 #  TASK 1 CODE: loan a book
 def loan_book():
     # get the membership card for the user
-
     # now validate this card is real
     while True:
         member_card = input("Please enter membership card number : ")
@@ -394,7 +436,7 @@ def loan_book():
             mem_result.printDetails()
             break
         else:
-            print("{} is not recognised. Try again".format(mem_result))
+            print("{} is not recognised. Try again".format(member_card))
     print()
 
     # now validate the book is real
@@ -495,8 +537,47 @@ def do_apply():
     update_members(MEMBERSFILE_JSON, data)
 
 
-do_apply()
+# do_apply()
 
 # TASK 4 CODE: reserve a book
 
+# to reserve a book, we will need to check if the book is on loan.
+
+def do_reserve():
+    data = {}
+    while True:
+        book_number = input("Please enter book number : ")
+        book_result = validate_book(book_number, books)
+        if book_result is not False:
+            book_result.printDetails()
+            break
+        else:
+            print("{} is not recognised. Try again".format(book_number))
+
+    # check if book is able to be loaned
+    if book_result._available is True:
+        print("Cannot process - '{}' is not loaned".format(book_result._title))
+        sys.exit(0)
+    else:
+        print("We can do this")
+
+    while True:
+        member_card = input("Please enter membership card number : ")
+        mem_result = validate_member(member_card, members)
+        if mem_result is not False:
+            mem_result.printDetails()
+            break
+        else:
+            print("{} is not recognised. Try again".format(member_card))
+
+    data["Book_id"] = book_result._book_number
+    data["Member_id"] = mem_result._id_no
+    data["Reserved_Date"] = str(get_current_days_excel_epoch())
+
+    # print(data)
+    # not working
+    update_json(RESERVATIONSFILE_JSON, data)
+
+
+do_reserve()
 # TASK 5 CODE: notification system
